@@ -9,7 +9,7 @@ Uso:
   python3 cartel_qr.py --nombre "Peluquería Lu" --tipo whatsapp --telefono 5492611234567 --mensaje "Hola! Quiero un turno"
   python3 cartel_qr.py --nombre "Kiosco 24" --tipo facebook --url "https://facebook.com/kiosco24"
 
-Tipos: google (reseñas), instagram, facebook, whatsapp, links (página con todos los links). Si no se pasa --tipo, se
+Tipos: google (reseñas), instagram, facebook, whatsapp, links (página con todos los links), menu (carta/catálogo). Si no se pasa --tipo, se
 deduce de la URL. Requiere: qrcode, reportlab, pillow (pip install qrcode reportlab pillow).
 """
 import argparse
@@ -64,6 +64,13 @@ THEMES = {
         "cta": "Escaneá con la cámara", "cta2": "y elegí por dónde contactarnos",
         "footer": "¡Gracias por elegirnos!",
     },
+    "menu": {
+        "bg": "#FBF7F1", "ink": "#1E1B18", "muted": "#6B645D", "accent": "#C8552B",
+        "qr": "#1E1B18", "card": "#FFFFFF", "kicker": "NUESTRA CARTA DIGITAL",
+        "headline": "¡Mirá la carta!", "sub": "Precios siempre actualizados",
+        "cta": "Escaneá con la cámara", "cta2": "y elegí lo que más te guste",
+        "footer": "¡Buen provecho!",
+    },
     "whatsapp": {
         "bg": "#075E54", "ink": "#FFFFFF", "muted": "#CFEFE6", "accent": "#25D366",
         "qr": "#075E54", "card": "#FFFFFF", "kicker": "ATENCIÓN POR WHATSAPP",
@@ -82,6 +89,8 @@ def detect_type(url):
         return "facebook"
     if "wa.me" in u or "whatsapp.com" in u:
         return "whatsapp"
+    if "/carta" in u or "/menu" in u or "/catalogo" in u:
+        return "menu"
     return "google"
 
 
@@ -151,6 +160,15 @@ def badge_links(c, cx, cy, r):
     c.roundRect(cx - r * 0.08, cy - r * 0.28, r * 0.7, r * 0.42, r * 0.21, stroke=1, fill=0)
 
 
+def badge_menu(c, cx, cy, r):
+    c.setFillColor(HexColor(THEMES["menu"]["accent"]))
+    c.circle(cx, cy, r, stroke=0, fill=1)
+    c.setStrokeColor(HexColor("#FFFFFF"))
+    c.setLineWidth(r * 0.16)
+    for k in (-0.3, 0.0, 0.3):
+        c.line(cx - r * 0.45, cy + r * k, cx + r * 0.45, cy + r * k)
+
+
 def badge_whatsapp(c, cx, cy, r):
     c.setFillColor(HexColor("#25D366"))
     c.circle(cx, cy, r, stroke=0, fill=1)
@@ -166,7 +184,7 @@ def badge_whatsapp(c, cx, cy, r):
     c.drawPath(p, stroke=0, fill=1)
 
 
-BADGES = {"links": badge_links, "google": badge_google, "instagram": badge_instagram, "facebook": badge_facebook, "whatsapp": badge_whatsapp}
+BADGES = {"menu": badge_menu, "links": badge_links, "google": badge_google, "instagram": badge_instagram, "facebook": badge_facebook, "whatsapp": badge_whatsapp}
 
 
 def draw_background(c, tipo, t):
@@ -198,6 +216,11 @@ def draw_background(c, tipo, t):
         c.circle(W + 8 * mm, H + 6 * mm, 46 * mm, stroke=0, fill=1)
         c.setFillColor(HexColor("#2B2722"))
         c.circle(-12 * mm, -10 * mm, 52 * mm, stroke=0, fill=1)
+    elif tipo == "menu":
+        c.setFillColor(HexColor("#F1E6D8"))
+        c.circle(W + 10 * mm, H + 8 * mm, 50 * mm, stroke=0, fill=1)
+        c.setFillColor(HexColor(t["accent"]))
+        c.circle(-14 * mm, -14 * mm, 40 * mm, stroke=0, fill=1)
     elif tipo == "whatsapp":
         c.setFillColor(HexColor("#128C7E"))
         c.circle(-10 * mm, -12 * mm, 55 * mm, stroke=0, fill=1)
@@ -229,7 +252,7 @@ def build(nombre, url, tipo, handle, out_pdf):
     c.setFillColor(muted)
     c.setFont("Sans", 13)
     sub = t["sub"] if not (handle and tipo in ("instagram", "facebook")) else handle
-    if tipo == "links":
+    if tipo in ("links", "menu"):
         c.setFont("Sans", fit_font(c, sub, "Sans", 13, W - 24 * mm, 9))
     c.drawCentredString(W / 2, top - 49 * mm, sub)
 
@@ -285,7 +308,7 @@ def main():
     tipo = a.tipo or detect_type(url)
     if a.sub:
         THEMES[tipo]["sub"] = a.sub
-    if a.accent and tipo == "links":
+    if a.accent and tipo in ("links", "menu"):
         THEMES[tipo]["accent"] = a.accent
 
     plain = unicodedata.normalize("NFKD", a.nombre).encode("ascii", "ignore").decode()
