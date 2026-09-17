@@ -51,5 +51,56 @@
       "label": "Ver la carta",
       "url": "https://giannsalva.github.io/GS-Servicios-Digitales/cliente-demo/carta/"
     }
+  ],
+  "secciones": [
+    {
+      "titulo": "Nuestra historia",
+      "imagen": "fotos/historia.jpg",
+      "texto": "Empezamos con una máquina de dos grupos y cuatro mesas prestadas. Hoy somos ocho personas, tostamos nuestro propio café y seguimos en la misma esquina.\n\nLo que no cambió: el café se hace cuando lo pedís, y la pastelería sale del horno todas las mañanas."
+    },
+    {
+      "titulo": "Qué encontrás",
+      "tarjetas": [
+        {
+          "titulo": "Desayunos y meriendas",
+          "texto": "Combos de café con pastelería, de lunes a sábado."
+        },
+        {
+          "titulo": "Almuerzos livianos",
+          "texto": "Tostones, sándwiches y ensaladas hasta las 16."
+        },
+        {
+          "titulo": "Café para llevar",
+          "texto": "Granos en bolsa de 250 g y cápsulas compatibles."
+        }
+      ]
+    },
+    {
+      "titulo": "Comodidades",
+      "lista": [
+        "Wi-Fi libre",
+        "Pet friendly",
+        "Mesas afuera",
+        "Acceso sin escaleras",
+        "Enchufes en todas las mesas"
+      ]
+    },
+    {
+      "titulo": "Preguntas frecuentes",
+      "preguntas": [
+        {
+          "p": "¿Hacen delivery?",
+          "r": "Sí, en Godoy Cruz y Ciudad por WhatsApp o Rappi."
+        },
+        {
+          "p": "¿Se puede reservar para grupos?",
+          "r": "Para más de seis personas, escribinos con un día de anticipación."
+        },
+        {
+          "p": "¿Tienen opciones sin TACC?",
+          "r": "Sí, brownie y budines; consultá por el resto."
+        }
+      ]
+    }
   ]
 }

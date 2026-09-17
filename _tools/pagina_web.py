@@ -20,6 +20,12 @@ config.json:
     {"titulo": "Café de especialidad", "texto": "Granos tostados en Mendoza, molidos al momento."},
     {"titulo": "Pastelería propia", "texto": "Horneamos todos los días desde las 6."}
   ],
+  "secciones": [
+    {"titulo": "Nuestra historia", "texto": "Uno o varios párrafos.\n\nSeparados por línea en blanco.", "imagen": "fotos/historia.jpg"},
+    {"titulo": "Qué ofrecemos", "tarjetas": [{"titulo": "Desayunos", "texto": "..."}, {"titulo": "Eventos", "texto": "..."}]},
+    {"titulo": "Servicios", "lista": ["Wi-Fi libre", "Pet friendly", "Acceso sin escaleras"]},
+    {"titulo": "Preguntas frecuentes", "preguntas": [{"p": "¿Hacen delivery?", "r": "Sí, en Godoy Cruz y Ciudad."}]}
+  ],
   "galeria": ["fotos/1.jpg", "fotos/2.jpg", "fotos/3.jpg"],
   "horarios": [
     {"dias": "Lunes a viernes", "horas": "8:00 a 20:00"},
@@ -41,6 +47,9 @@ config.json:
   ]
 }
 Todos los campos salvo "nombre" son opcionales: cada sección aparece solo si tiene datos.
+"secciones" es libre y se adapta al rubro: cada una lleva "titulo" y cualquier combinación de
+"texto" (párrafos separados por línea en blanco), "imagen", "tarjetas", "lista" y "preguntas".
+Se muestran en el orden del JSON, después de "Quiénes somos" y los destacados.
 Fotos locales de menos de 200 KB (redimensionar a 1200 px de ancho la portada, 800 px la galería).
 """
 import base64
@@ -103,6 +112,23 @@ def render(cfg, base=Path(".")):
     if cfg.get("destacados"):
         cards = "".join(f'<div class="card"><h3>{e(d["titulo"])}</h3><p>{e(d.get("texto", ""))}</p></div>' for d in cfg["destacados"])
         feats = f'<section><div class="feats">{cards}</div></section>'
+
+    extra = ""
+    for sec in cfg.get("secciones", []):
+        parts = []
+        if sec.get("texto"):
+            parts.append("".join(f"<p>{e(par.strip())}</p>" for par in sec["texto"].split("\n\n") if par.strip()))
+        if sec.get("tarjetas"):
+            parts.append('<div class="feats">' + "".join(f'<div class="card"><h3>{e(t["titulo"])}</h3><p>{e(t.get("texto", ""))}</p></div>' for t in sec["tarjetas"]) + "</div>")
+        if sec.get("lista"):
+            parts.append('<ul class="bul">' + "".join(f"<li>{e(x)}</li>" for x in sec["lista"]) + "</ul>")
+        if sec.get("preguntas"):
+            parts.append("".join(f'<details><summary>{e(q["p"])}</summary><p>{e(q["r"])}</p></details>' for q in sec["preguntas"]))
+        im = img_src(sec.get("imagen", ""), base)
+        body = "".join(parts)
+        if im:
+            body = f'<div class="split"><img src="{im}" alt="" loading="lazy"><div>{body}</div></div>'
+        extra += f'<section class="free"><h2>{e(sec["titulo"])}</h2>{body}</section>'
 
     gal = ""
     pics = [img_src(p, base) for p in cfg.get("galeria", [])]
@@ -186,6 +212,17 @@ iframe {{ width: 100%; height: 220px; border: 0; border-radius: 12px; margin-top
 .clist {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }}
 .clist a {{ display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; color: var(--ink); text-decoration: none; font-weight: 600; font-size: 15px; }}
 .clist svg {{ width: 20px; height: 20px; fill: var(--accent); flex: none; }}
+.free p {{ margin: 0 0 10px; font-size: 16px; max-width: 60ch; }}
+.free p:last-child {{ margin-bottom: 0; }}
+.split {{ display: grid; gap: 16px; align-items: start; }}
+.split img {{ width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 14px; }}
+@media (min-width: 560px) {{ .split {{ grid-template-columns: 1fr 1.3fr; }} }}
+.bul {{ margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }}
+.bul li {{ background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 15px; }}
+.bul li::before {{ content: "\\2713"; color: var(--accent); font-weight: 700; margin-right: 8px; }}
+details {{ background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; }}
+summary {{ cursor: pointer; font-weight: 700; font-size: 15px; }}
+details p {{ margin: 8px 0 0; color: var(--muted); font-size: 14px; }}
 footer {{ text-align: center; color: var(--muted); font-size: 12px; padding: 0 16px 32px; }}
 </style></head><body>
 <header class="hero"{hero_style}><div>
@@ -196,7 +233,7 @@ footer {{ text-align: center; color: var(--muted); font-size: 12px; padding: 0 1
   {f'<div class="btns">{hero_btns}</div>' if hero_btns else ""}
 </div></header>
 <main>
-{about}{feats}{gal}{info}{contact}
+{about}{feats}{extra}{gal}{info}{contact}
 </main>
 <footer>{name}{(" · " + e(cfg["direccion"])) if cfg.get("direccion") else ""}</footer>
 </body></html>
