@@ -4,7 +4,7 @@ Archivo de clientes del Kit QR. Una carpeta por comercio, servida con GitHub Pag
 
 | Cliente | Página | Contenido |
 |---|---|---|
-| Bar Central | https://giannsalva.github.io/links/bar-central/ | `config.json`, `index.html`, `carteles/` |
+| Cliente demo (Bar Central, ficticio) | https://giannsalva.github.io/links/cliente-demo/ | `config.json`, `index.html`, `carteles/` |
 
 Estructura por cliente:
 
