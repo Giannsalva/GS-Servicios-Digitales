@@ -225,7 +225,7 @@ function mailConfirmacion_(cfg, t) {
   var wa = "https://wa.me/" + cfg.whatsapp + "?text=" + encodeURIComponent("Hola! Confirmo mi turno " + t.id + ": " + t.servicio + ", " + fechaLarga_(t.fecha) + " a las " + t.hora + ". " + t.nombre);
   var html = plantilla_(cfg, "Tu reserva está confirmada",
     "<p>Hola " + esc_(t.nombre.split(" ")[0]) + ", te esperamos.</p>" + tarjeta_(cfg, t) +
-    "<p style='margin:20px 0 8px'><a href='" + wa + "' style='" + btn_("#25D366") + "'>Confirmar por WhatsApp</a></p>" +
+    "<div style='margin:20px 0 8px'>" + boton_(wa, "Confirmar por WhatsApp", "#25D366") + "</div>" +
     "<p style='color:#6B645D;font-size:13px'>¿No podés venir? <a href='" + cancel + "'>Cancelá tu reserva acá</a> y liberás el lugar para otra persona.</p>");
   GmailApp.sendEmail(t.email, "Reserva confirmada · " + cfg.negocio + " · " + fechaLarga_(t.fecha) + " " + t.hora, textoPlano_(html), {
     htmlBody: html, name: cfg.negocio, replyTo: cfg.email_dueno,
@@ -239,7 +239,7 @@ function mailRecordatorio_(cfg, t) {
   var wa = "https://wa.me/" + cfg.whatsapp + "?text=" + encodeURIComponent("Hola! Confirmo mi turno " + t.id + " de mañana " + t.hora + ". " + t.nombre);
   var html = plantilla_(cfg, "Te esperamos mañana",
     "<p>Hola " + esc_(t.nombre.split(" ")[0] ) + ", te recordamos tu reserva:</p>" + tarjeta_(cfg, t) +
-    "<p style='margin:20px 0 8px'><a href='" + wa + "' style='" + btn_("#25D366") + "'>Confirmar por WhatsApp</a></p>" +
+    "<div style='margin:20px 0 8px'>" + boton_(wa, "Confirmar por WhatsApp", "#25D366") + "</div>" +
     "<p style='color:#6B645D;font-size:13px'>Si no podés venir, <a href='" + cancel + "'>cancelá acá</a>. Gracias!</p>");
   GmailApp.sendEmail(t.email, "Recordatorio · " + cfg.negocio + " · mañana " + t.hora, textoPlano_(html), { htmlBody: html, name: cfg.negocio, replyTo: cfg.email_dueno });
 }
@@ -249,13 +249,13 @@ function mailDuenoTurno_(cfg, titulo, t, nota) {
   var wa = "https://wa.me/" + String(t.telefono).replace(/\D/g, "") + "?text=" + encodeURIComponent("Hola " + t.nombre.split(" ")[0] + "! Te escribo de " + cfg.negocio + " por tu reserva del " + fechaLarga_(t.fecha) + " a las " + t.hora + ".");
   var html = plantilla_(cfg, titulo + ": " + t.servicio,
     tarjeta_(cfg, t) +
-    "<div style='border:1px solid #E8E3DD;border-radius:14px;padding:14px 16px;background:#FFF'>" +
+    "<div style='border:1px solid #E8E3DD;border-radius:14px;padding:14px 16px;background-color:#FAF8F5;color:#1E1B18'>" +
     "<div><b>" + esc_(t.nombre) + "</b></div>" +
     "<div style='margin-top:4px'>" + esc_(t.telefono) + " · " + esc_(t.email) + "</div>" +
     (t.notas ? "<div style='margin-top:8px;color:#6B645D'>" + esc_(t.notas) + "</div>" : "") + "</div>" +
     "<p style='color:#6B645D;font-size:13px;margin:14px 0 0'>" + esc_(nota) + "</p>" +
-    "<p style='margin:18px 0 0'><a href='" + wa + "' style='" + btn_("#25D366") + "'>Escribirle por WhatsApp</a> " +
-    "<a href='" + ss_().getUrl() + "' style='" + btn_("#6B645D") + "'>Ver planilla</a></p>");
+    "<div style='margin:18px 0 0'>" + boton_(wa, "Escribirle por WhatsApp", "#25D366") + "</div>" +
+    "<p style='color:#6B645D;font-size:12px;margin:6px 0 0'>Si el botón no abre: <a href='" + wa + "' style='color:#0E7490'>wa.me/" + String(t.telefono).replace(/\D/g, "") + "</a> · <a href='" + ss_().getUrl() + "' style='color:#0E7490'>Ver planilla de turnos</a></p>");
   GmailApp.sendEmail(cfg.email_dueno, "[Turnos] " + titulo + " · " + t.servicio + " · " + fechaLarga_(t.fecha) + " " + t.hora, textoPlano_(html), { htmlBody: html, name: cfg.negocio + " · Turnos" });
 }
 
@@ -335,16 +335,22 @@ function fechaLarga_(f) {
   var meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
   return dias[d.getDay()] + " " + d.getDate() + " de " + meses[d.getMonth()];
 }
-function btn_(color) { return "display:inline-block;padding:12px 20px;border-radius:999px;background:" + color + ";color:#fff;text-decoration:none;font-weight:700"; }
+function btn_(color) { return "display:inline-block;padding:12px 20px;border-radius:999px;background-color:" + color + ";color:#ffffff;text-decoration:none;font-weight:700"; }
+function boton_(url, texto, color) {
+  return "<table role='presentation' cellpadding='0' cellspacing='0' border='0' style='display:inline-table;margin:0 6px 8px 0'><tr>" +
+    "<td bgcolor='" + color + "' style='background-color:" + color + ";border-radius:999px;mso-padding-alt:12px 20px'>" +
+    "<a href='" + url + "' target='_blank' style='display:inline-block;padding:12px 20px;color:#ffffff !important;text-decoration:none;font-weight:700;font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:15px'>" +
+    "<span style='color:#ffffff'>" + texto + "</span></a></td></tr></table>";
+}
 function tarjeta_(cfg, t) {
-  return "<div style='border:1px solid #E8E3DD;border-radius:14px;padding:16px;margin:12px 0;background:#FFF'>" +
+  return "<div style='border:1px solid #E8E3DD;border-radius:14px;padding:16px;margin:12px 0;background-color:#FAF8F5;color:#1E1B18'>" +
     "<div style='font-size:18px;font-weight:700'>" + esc_(t.servicio) + "</div>" +
     "<div style='font-size:16px;margin-top:6px'>" + fechaLarga_(t.fecha) + " · <b>" + t.hora + "</b> hs</div>" +
     (cfg.direccion ? "<div style='color:#6B645D;margin-top:6px'>" + esc_(cfg.direccion) + "</div>" : "") +
     "<div style='color:#6B645D;font-size:12px;margin-top:10px'>Reserva " + t.id + "</div></div>";
 }
 function plantilla_(cfg, titulo, cuerpo) {
-  return "<div style='font-family:Segoe UI,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#1E1B18;background:#F7F5F2'>" +
+  return "<div style='font-family:Segoe UI,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#1E1B18;background-color:#FFFFFF'>" +
     "<div style='font-size:13px;color:#6B645D;letter-spacing:.06em;text-transform:uppercase'>" + esc_(cfg.negocio) + "</div>" +
     "<h1 style='font-size:24px;margin:6px 0 14px'>" + esc_(titulo) + "</h1>" + cuerpo +
     "<p style='color:#A79F95;font-size:11px;margin-top:28px'>" + esc_(cfg.negocio) + (cfg.direccion ? " · " + esc_(cfg.direccion) : "") + "</p></div>";
