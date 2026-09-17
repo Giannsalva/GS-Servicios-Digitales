@@ -1,0 +1,20 @@
+{
+  "nombre": "Bar Central",
+  "titulo": "Reservá tu lugar",
+  "detalle": "Elegí qué querés reservar, el día y el horario. Te llega la confirmación por mail y un recordatorio el día anterior.",
+  "accent": "#C8552B",
+  "api_url": "",
+  "whatsapp": "5491137845392",
+  "direccion": "San Martín 1234, Godoy Cruz, Mendoza",
+  "volver": "https://giannsalva.github.io/GS-Servicios-Digitales/cliente-demo/",
+  "dias_adelante": 30,
+  "intervalo_min": 30,
+  "horarios": {"lun_vie": "09:00-13:00, 16:00-20:00", "sab": "09:00-14:00", "dom": ""},
+  "servicios": [
+    {"id": "mesa2", "nombre": "Mesa para 2", "duracion": 90, "descripcion": "Reserva de mesa para dos personas"},
+    {"id": "mesa4", "nombre": "Mesa para 4", "duracion": 90, "descripcion": "Hasta cuatro personas"},
+    {"id": "cumple", "nombre": "Cumpleaños / grupo", "duracion": 120, "descripcion": "Grupos de 5 o más, te llamamos para coordinar"}
+  ],
+  "campos_extra": [{"id": "personas", "label": "¿Cuántos son?", "tipo": "number"}],
+  "notas": true
+}

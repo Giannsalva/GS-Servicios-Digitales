@@ -11,6 +11,12 @@
       "url": "https://wa.me/5491137845392"
     },
     {
+      "tipo": "reservas",
+      "label": "Reservas",
+      "sub": "Guardá tu lugar",
+      "url": "https://giannsalva.github.io/GS-Servicios-Digitales/cliente-demo/turnos/"
+    },
+    {
       "tipo": "instagram",
       "label": "Instagram",
       "sub": "Mirá nuestro contenido",
