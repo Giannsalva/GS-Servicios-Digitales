@@ -6,42 +6,39 @@
   "links": [
     {
       "tipo": "whatsapp",
-      "label": "Pedinos por WhatsApp",
-      "sub": "Respondemos al toque",
-      "url": "https://wa.me/5492610000000?text=Hola%21%20Quiero%20hacer%20un%20pedido"
-    },
-    {
-      "tipo": "menu",
-      "label": "Ver la carta",
-      "sub": "Precios actualizados",
-      "url": "https://giannsalva.github.io/GS-Servicios-Digitales/cliente-demo/carta/"
+      "label": "WhatsApp",
+      "sub": "Comunicate con nosotros",
+      "url": "https://wa.me/5491137845392"
     },
     {
       "tipo": "instagram",
       "label": "Instagram",
-      "sub": "@barcentral.mza",
-      "url": "https://instagram.com/barcentral.mza"
-    },
-    {
-      "tipo": "google",
-      "label": "Dejanos tu reseña en Google",
-      "sub": "Nos ayuda muchísimo",
-      "url": "https://maps.app.goo.gl/sRhe8EfDFZeuSLT16"
-    },
-    {
-      "tipo": "maps",
-      "label": "Cómo llegar",
-      "url": "https://maps.app.goo.gl/sRhe8EfDFZeuSLT16"
+      "sub": "Mirá nuestro contenido",
+      "url": "https://instagram.com/giannsalva"
     },
     {
       "tipo": "facebook",
       "label": "Facebook",
-      "url": "https://facebook.com/barcentral"
+      "sub": "Mirá todas nuestras novedades",
+      "url": "https://www.facebook.com/search/top?q=Gianluca%20Salvatori"
+    },
+    {
+      "tipo": "menu",
+      "label": "Nuestro catálogo",
+      "sub": "Mirá todos nuestros productos",
+      "url": "https://giannsalva.github.io/GS-Servicios-Digitales/cliente-demo/carta/"
     },
     {
       "tipo": "web",
-      "label": "Nuestra web",
+      "label": "Página web",
+      "sub": "Conocenos un poco más",
       "url": "https://giannsalva.github.io/GS-Servicios-Digitales/cliente-demo/web/"
+    },
+    {
+      "tipo": "google",
+      "label": "Dejanos tu reseña en Google",
+      "sub": "Nos ayuda a seguir creciendo",
+      "url": "https://www.google.com/maps/place/PARQUE+DE+LA+COSTA/@-34.4179814,-58.5795917,17z/data=!3m1!5s0x95bca595f6f9ce37:0x179ea4b67b8dbad4!4m8!3m7!1s0x95bca5b093ad2af3:0x4fce783f7ad283e0!8m2!3d-34.4179859!4d-58.5770168!9m1!1b1!16s%2Fm%2F0c42d2z?entry=ttu"
     }
   ]
 }
