@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+"""
+Mini web de presentación para un comercio: una sola página con portada, quiénes
+somos, destacados, galería, horarios, ubicación y contacto. Genera un index.html
+autocontenido (las fotos locales se embeben).
+
+Uso:
+  python3 pagina_web.py config.json [salida.html]
+
+config.json:
+{
+  "nombre": "Bar Central",
+  "rubro": "Café de especialidad y pastelería",
+  "frase": "El café de tu barrio, hecho con calma.",
+  "descripcion": "Párrafo corto sobre el local. Puede tener dos o tres oraciones.",
+  "accent": "#C8552B",
+  "portada": "fotos/portada.jpg",
+  "logo": "fotos/logo.png",
+  "destacados": [
+    {"titulo": "Café de especialidad", "texto": "Granos tostados en Mendoza, molidos al momento."},
+    {"titulo": "Pastelería propia", "texto": "Horneamos todos los días desde las 6."}
+  ],
+  "galeria": ["fotos/1.jpg", "fotos/2.jpg", "fotos/3.jpg"],
+  "horarios": [
+    {"dias": "Lunes a viernes", "horas": "8:00 a 20:00"},
+    {"dias": "Sábados", "horas": "9:00 a 21:00"},
+    {"dias": "Domingos", "horas": "Cerrado"}
+  ],
+  "direccion": "San Martín 1234, Godoy Cruz, Mendoza",
+  "maps_url": "https://maps.app.goo.gl/...",
+  "mapa_embed": true,
+  "whatsapp": "5492610000000",
+  "mensaje": "Hola! Quiero hacer una consulta",
+  "telefono": "+54 261 000-0000",
+  "instagram": "https://instagram.com/barcentral.mza",
+  "facebook": "https://facebook.com/barcentral",
+  "email": "hola@barcentral.com",
+  "botones": [
+    {"label": "Ver la carta", "url": "https://.../carta/"},
+    {"label": "Reservar mesa", "url": "https://wa.me/549..."}
+  ]
+}
+Todos los campos salvo "nombre" son opcionales: cada sección aparece solo si tiene datos.
+Fotos locales de menos de 200 KB (redimensionar a 1200 px de ancho la portada, 800 px la galería).
+"""
+import base64
+import html
+import json
+import mimetypes
+import sys
+from pathlib import Path
+from urllib.parse import quote
+
+
+def img_src(ref, base):
+    if not ref:
+        return ""
+    if ref.startswith(("http://", "https://", "data:")):
+        return ref
+    p = Path(ref) if Path(ref).is_absolute() else base / ref
+    if not p.exists():
+        return ""
+    mime = mimetypes.guess_type(p.name)[0] or "image/jpeg"
+    return f"data:{mime};base64," + base64.b64encode(p.read_bytes()).decode()
+
+
+ICO = {
+    "wa": '<path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5 5 0 0 0 1.1 2.7 11.5 11.5 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.6 2.6 0 0 0 1.7-1.2 2 2 0 0 0 .2-1.2c-.1-.1-.3-.2-.5-.3Z"/>',
+    "ig": '<rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.3" cy="6.7" r="1.2"/>',
+    "fb": '<path d="M14 8.5V6.8c0-.8.5-1 .9-1H17V2.5h-2.9C11 2.5 10 4.8 10 6.4v2.1H7.5V12H10v9.5h4V12h2.8l.4-3.5H14Z"/>',
+    "tel": '<path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.2c1.1.4 2.3.6 3.6.6a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.2.2 2.4.6 3.6a1 1 0 0 1-.3 1L6.6 10.8Z"/>',
+    "mail": '<path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2.3V18h16V7.3l-8 5.2-8-5.2ZM5.4 7l6.6 4.3L18.6 7H5.4Z"/>',
+    "pin": '<path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/>',
+}
+
+
+def svg(k):
+    return f'<svg viewBox="0 0 24 24" aria-hidden="true">{ICO[k]}</svg>'
+
+
+def render(cfg, base=Path(".")):
+    e = html.escape
+    name = e(cfg["nombre"])
+    accent = cfg.get("accent", "#C8552B")
+    portada = img_src(cfg.get("portada", ""), base)
+    logo = img_src(cfg.get("logo", ""), base)
+    wa = cfg.get("whatsapp")
+    wa_url = f"https://wa.me/{wa}?text={quote(cfg.get('mensaje', 'Hola!'))}" if wa else ""
+
+    hero_style = f' style="background-image:url({portada})"' if portada else ""
+    brand = f'<img class="logo" src="{logo}" alt="">' if logo else f'<div class="logo mono">{e(cfg["nombre"][:1].upper())}</div>'
+    hero_btns = ""
+    if wa_url:
+        hero_btns += f'<a class="btn primary" href="{wa_url}" target="_blank" rel="noopener">{svg("wa")}Escribinos</a>'
+    for b in cfg.get("botones", []):
+        hero_btns += f'<a class="btn" href="{e(b["url"])}" target="_blank" rel="noopener">{e(b["label"])}</a>'
+
+    about = ""
+    if cfg.get("descripcion"):
+        about = f'<section class="about"><h2>Quiénes somos</h2><p>{e(cfg["descripcion"])}</p></section>'
+
+    feats = ""
+    if cfg.get("destacados"):
+        cards = "".join(f'<div class="card"><h3>{e(d["titulo"])}</h3><p>{e(d.get("texto", ""))}</p></div>' for d in cfg["destacados"])
+        feats = f'<section><div class="feats">{cards}</div></section>'
+
+    gal = ""
+    pics = [img_src(p, base) for p in cfg.get("galeria", [])]
+    pics = [p for p in pics if p]
+    if pics:
+        gal = '<section><h2>Galería</h2><div class="gal">' + "".join(f'<img src="{p}" alt="" loading="lazy">' for p in pics) + "</div></section>"
+
+    hours = ""
+    if cfg.get("horarios"):
+        rows = "".join(f'<div class="row"><span>{e(h["dias"])}</span><b>{e(h["horas"])}</b></div>' for h in cfg["horarios"])
+        hours = f'<div class="box"><h2>Horarios</h2>{rows}</div>'
+
+    loc = ""
+    if cfg.get("direccion") or cfg.get("maps_url"):
+        addr = e(cfg.get("direccion", ""))
+        link = f'<a class="btn small" href="{e(cfg["maps_url"])}" target="_blank" rel="noopener">{svg("pin")}Cómo llegar</a>' if cfg.get("maps_url") else ""
+        embed = ""
+        if cfg.get("mapa_embed") and cfg.get("direccion"):
+            embed = f'<iframe title="Mapa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q={quote(cfg["direccion"])}&output=embed"></iframe>'
+        loc = f'<div class="box"><h2>Dónde estamos</h2><p>{addr}</p>{link}{embed}</div>'
+
+    info = f'<section class="info">{hours}{loc}</section>' if (hours or loc) else ""
+
+    contact_items = []
+    if wa_url:
+        contact_items.append(f'<a href="{wa_url}" target="_blank" rel="noopener">{svg("wa")}WhatsApp</a>')
+    if cfg.get("telefono"):
+        tel = cfg["telefono"]
+        contact_items.append(f'<a href="tel:{e(tel.replace(" ", "").replace("-", ""))}">{svg("tel")}{e(tel)}</a>')
+    if cfg.get("instagram"):
+        contact_items.append(f'<a href="{e(cfg["instagram"])}" target="_blank" rel="noopener">{svg("ig")}Instagram</a>')
+    if cfg.get("facebook"):
+        contact_items.append(f'<a href="{e(cfg["facebook"])}" target="_blank" rel="noopener">{svg("fb")}Facebook</a>')
+    if cfg.get("email"):
+        contact_items.append(f'<a href="mailto:{e(cfg["email"])}">{svg("mail")}{e(cfg["email"])}</a>')
+    contact = f'<section class="contact"><h2>Contacto</h2><div class="clist">{"".join(contact_items)}</div></section>' if contact_items else ""
+
+    return f"""<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="{e(cfg.get('rubro', ''))} · {e(cfg.get('direccion', ''))}">
+<title>{name}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@500;600;700&display=swap">
+<style>
+:root {{ --accent: {accent}; --bg: #F7F5F2; --card: #FFFFFF; --ink: #1E1B18; --muted: #6B645D; --line: #E8E3DD; --hero: #2A2420; }}
+@media (prefers-color-scheme: dark) {{ :root:not([data-theme="light"]) {{ --bg: #15130F; --card: #201D18; --ink: #F4EFE8; --muted: #A79F95; --line: #322D26; }} }}
+:root[data-theme="dark"] {{ --bg: #15130F; --card: #201D18; --ink: #F4EFE8; --muted: #A79F95; --line: #322D26; }}
+* {{ box-sizing: border-box; }}
+body {{ margin: 0; background: var(--bg); color: var(--ink); font-family: Manrope, "Segoe UI", system-ui, sans-serif; line-height: 1.5; }}
+.hero {{ position: relative; min-height: 78vh; display: grid; place-items: end start; padding: 24px 16px calc(28px + env(safe-area-inset-bottom, 0px)); color: #fff; background: var(--hero) center/cover no-repeat; }}
+.hero::before {{ content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.72)); }}
+.hero > div {{ position: relative; max-width: 640px; width: 100%; margin: 0 auto; }}
+.logo {{ width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; margin-bottom: 14px; }}
+.logo.mono {{ display: grid; place-items: center; background: var(--accent); font-family: Fraunces, Georgia, serif; font-size: 34px; font-weight: 700; }}
+.hero h1 {{ margin: 0; font-family: Fraunces, Georgia, serif; font-size: clamp(34px, 8vw, 52px); font-weight: 700; line-height: 1.05; letter-spacing: -0.01em; text-wrap: balance; }}
+.rubro {{ margin: 6px 0 0; font-size: 15px; opacity: .9; }}
+.frase {{ margin: 14px 0 0; font-size: 18px; max-width: 34ch; text-wrap: balance; }}
+.btns {{ display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }}
+.btn {{ display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 15px; background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.4); backdrop-filter: blur(4px); }}
+.btn.primary {{ background: #25D366; border-color: #25D366; }}
+.btn svg {{ width: 18px; height: 18px; fill: currentColor; }}
+main {{ max-width: 640px; margin: 0 auto; padding: 8px 16px 48px; }}
+section {{ margin-top: 36px; }}
+h2 {{ font-family: Fraunces, Georgia, serif; font-size: 24px; font-weight: 600; margin: 0 0 12px; color: var(--accent); }}
+.about p {{ margin: 0; font-size: 17px; max-width: 60ch; }}
+.feats {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }}
+.card {{ background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }}
+.card h3 {{ margin: 0 0 6px; font-size: 16px; }}
+.card p {{ margin: 0; color: var(--muted); font-size: 14px; }}
+.gal {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }}
+.gal img {{ width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; display: block; }}
+.gal img:first-child {{ grid-column: span 2; grid-row: span 2; }}
+.info {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }}
+.box {{ background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }}
+.box h2 {{ font-size: 20px; }}
+.box p {{ margin: 0 0 10px; }}
+.row {{ display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 15px; }}
+.row:first-of-type {{ border-top: 0; }}
+.btn.small {{ background: var(--accent); border-color: var(--accent); padding: 10px 14px; font-size: 14px; }}
+iframe {{ width: 100%; height: 220px; border: 0; border-radius: 12px; margin-top: 12px; }}
+.clist {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }}
+.clist a {{ display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; color: var(--ink); text-decoration: none; font-weight: 600; font-size: 15px; }}
+.clist svg {{ width: 20px; height: 20px; fill: var(--accent); flex: none; }}
+footer {{ text-align: center; color: var(--muted); font-size: 12px; padding: 0 16px 32px; }}
+</style></head><body>
+<header class="hero"{hero_style}><div>
+  {brand}
+  <h1>{name}</h1>
+  {f'<p class="rubro">{e(cfg["rubro"])}</p>' if cfg.get("rubro") else ""}
+  {f'<p class="frase">{e(cfg["frase"])}</p>' if cfg.get("frase") else ""}
+  {f'<div class="btns">{hero_btns}</div>' if hero_btns else ""}
+</div></header>
+<main>
+{about}{feats}{gal}{info}{contact}
+</main>
+<footer>{name}{(" · " + e(cfg["direccion"])) if cfg.get("direccion") else ""}</footer>
+</body></html>
+"""
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        sys.exit("Uso: pagina_web.py config.json [salida.html]")
+    src = Path(sys.argv[1])
+    cfg = json.loads(src.read_text(encoding="utf-8"))
+    out = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("index.html")
+    out.write_text(render(cfg, src.parent), encoding="utf-8")
+    print(out)

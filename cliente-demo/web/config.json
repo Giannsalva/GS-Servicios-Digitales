@@ -1,0 +1,55 @@
+{
+  "nombre": "Bar Central",
+  "rubro": "Café de especialidad y pastelería",
+  "frase": "El café de tu barrio, hecho con calma.",
+  "descripcion": "Abrimos en 2021 con una idea simple: buen café, pastelería hecha acá y un lugar donde quedarse un rato. Tostamos en Mendoza, horneamos todas las mañanas y te esperamos con la mesa de la ventana lista.",
+  "accent": "#C8552B",
+  "portada": "fotos/portada.jpg",
+  "destacados": [
+    {
+      "titulo": "Café de especialidad",
+      "texto": "Granos de origen, tostados en Mendoza y molidos al momento."
+    },
+    {
+      "titulo": "Pastelería propia",
+      "texto": "Horneamos todos los días desde las 6 de la mañana."
+    },
+    {
+      "titulo": "Opciones para todos",
+      "texto": "Leches vegetales, sin TACC y opciones veganas."
+    }
+  ],
+  "galeria": [
+    "fotos/1.jpg",
+    "fotos/2.jpg",
+    "fotos/3.jpg"
+  ],
+  "horarios": [
+    {
+      "dias": "Lunes a viernes",
+      "horas": "8:00 a 20:00"
+    },
+    {
+      "dias": "Sábados",
+      "horas": "9:00 a 21:00"
+    },
+    {
+      "dias": "Domingos y feriados",
+      "horas": "Cerrado"
+    }
+  ],
+  "direccion": "San Martín 1234, Godoy Cruz, Mendoza",
+  "maps_url": "https://maps.app.goo.gl/sRhe8EfDFZeuSLT16",
+  "mapa_embed": true,
+  "whatsapp": "5492610000000",
+  "mensaje": "Hola! Quiero hacer una consulta",
+  "telefono": "+54 261 000-0000",
+  "instagram": "https://instagram.com/barcentral.mza",
+  "facebook": "https://facebook.com/barcentral",
+  "botones": [
+    {
+      "label": "Ver la carta",
+      "url": "https://giannsalva.github.io/GS-Servicios-Digitales/cliente-demo/carta/"
+    }
+  ]
+}
