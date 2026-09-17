@@ -19,6 +19,7 @@ Completá lo que puedas y mandámelo por WhatsApp (foto o archivo). Lo que no ap
 | Nombre y celular de quien decide | |
 | Color principal del negocio (o "el del cartel/logo") | |
 | Logo | [ ] lo adjunto  [ ] no tengo |
+
 ## Horarios
 
 | Días | Horario |
@@ -41,6 +42,8 @@ Completá lo que puedas y mandámelo por WhatsApp (foto o archivo). Lo que no ap
 | Preguntas que siempre les hacen los clientes, con la respuesta | |
 | Botones principales (ej. "Ver la carta", "Reservar", "Pedir turno") | |
 | Mapa dentro de la página | [ ] sí  [ ] no |
+| Mensaje que llega escrito al tocar el botón de WhatsApp | |
+| ¿Querés dominio propio (tunegocio.com.ar) en vez del link gratuito? | [ ] sí  [ ] no  [ ] contame cuánto sale |
 
 ## Fotos (adjuntar)
 
@@ -49,3 +52,17 @@ Completá lo que puedas y mandámelo por WhatsApp (foto o archivo). Lo que no ap
 - [ ] Productos, platos o trabajos realizados (5 o más)
 - [ ] Equipo atendiendo (1 o 2)
 - [ ] Una foto horizontal linda para la portada
+
+## Lo que necesito de tu lado
+
+- **Las fotos en buena calidad y desde el celular directo** (no capturas de Instagram, que salen borrosas al agrandarlas). Si no tenés, aviso y las saco yo en una visita.
+- **Que alguien me cuente el negocio**, aunque sea por audio de WhatsApp: los textos los redacto yo, pero necesito tus palabras para que no suene genérico.
+- **Los links a donde llevan los botones** (la carta, las reservas, Instagram), copiados y pegados.
+- Si vendés algo que se retira o se envía, **la zona de cobertura**.
+
+| | |
+|---|---|
+| ¿Para cuándo lo necesitás? | |
+| ¿Quién aprueba los textos y las fotos antes de publicar? | |
+
+Todo lo que me pases se publica en una página pública. Confirmame que las fotos son tuyas o que tenés permiso para usarlas, y que los datos son correctos.

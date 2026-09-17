@@ -19,6 +19,7 @@ Completá lo que puedas y mandámelo por WhatsApp (foto o archivo). Lo que no ap
 | Nombre y celular de quien decide | |
 | Color principal del negocio (o "el del cartel/logo") | |
 | Logo | [ ] lo adjunto  [ ] no tengo |
+
 ## Horarios
 
 | Días | Horario |
@@ -53,3 +54,24 @@ Mensaje que llega escrito al tocar el botón de WhatsApp: `Hola! Quiero...`
 - [ ] Ver el menú / catálogo
 
 Frase que querés en los carteles (opcional, ej. "Tu opinión nos ayuda a crecer"): ________
+
+| Pregunta | Respuesta |
+|---|---|
+| ¿Dónde van a estar? (mesas, caja, mostrador, vidriera, probador...) | |
+| ¿Cuántas copias de cada uno? | |
+| Tamaño | [ ] 15x21 cm (mesa/caja)  [ ] A4 (vidriera o pared) |
+| ¿Plastificados? | [ ] sí  [ ] no |
+
+## Lo que necesito de tu lado
+
+- **Los links copiados y pegados**, no escritos de memoria: Instagram, Facebook, tu web, el de Maps. Un link mal escrito es un QR impreso que no lleva a ningún lado.
+- **El link para dejar reseña en Google**, si lo tenés a mano (en tu Perfil de Empresa, "Pedir reseñas", queda tipo `g.page/r/...`). Si no lo tenés, mandame el de Maps y lo saco yo.
+- **El logo** en el archivo original (PNG, JPG o lo que te haya pasado el diseñador). Una foto del cartel también sirve.
+- **Confirmarme el nombre tal cual querés verlo impreso**, con mayúsculas y acentos incluidos.
+
+| | |
+|---|---|
+| ¿Para cuándo lo necesitás? | |
+| ¿Quién aprueba los textos antes de imprimir? | |
+
+Los datos y el logo que me pases se publican tal cual en la página y en los carteles. Confirmame que son correctos y que puedo usarlos.

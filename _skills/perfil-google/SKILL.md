@@ -1,0 +1,261 @@
+---
+name: perfil-google
+description: "Auditar u optimizar el Perfil de Empresa en Google (Google Maps) de un comercio, o crearlo desde cero. Usar cuando Gian pida revisar, mejorar, completar o crear el perfil de Google Maps de un local."
+---
+
+# Perfil de Google Maps (Perfil de Empresa en Google)
+
+Servicio "Perfil de Google Maps más llamativo" del catálogo de Gianluca. Dos modos:
+**auditar y optimizar** un perfil existente, o **crearlo desde cero**. En ambos el
+resultado es un perfil que Gian cataloga como "completo" según la rúbrica de abajo, y
+un informe + kit de textos listo para cargar.
+
+## Paso 0: la plantilla del cliente (siempre)
+
+El servicio **arranca por la plantilla de `_plantillas/`**, no por preguntas sueltas.
+
+1. Si el cliente todavía no la completó, mandarle el `.docx` de `_plantillas/docx/`.
+2. Cuando la devuelve (archivo, foto o audios de WhatsApp), transcribirla y archivarla como
+   `<slug>/alta-perfil-google.md` en el repo: ese archivo es la fuente de verdad del cliente.
+3. **Leer el alta antes de generar nada.** De ahí salen todos los datos; nunca inventar nombres,
+   links, precios ni teléfonos.
+4. Lo que quedó vacío se pregunta una sola vez, todo junto, y se completa en el mismo archivo.
+   Lo que sigue faltando se marca `PENDIENTE` y no se publica ni se imprime nada que dependa de eso.
+5. Si el cliente ya tiene otro servicio contratado, los datos del comercio se copian de su alta
+   anterior en vez de volver a pedirlos.
+
+Mapeo de `_plantillas/perfil-google.md` al trabajo:
+
+| Bloque de la plantilla | Dónde va |
+|---|---|
+| Datos del comercio y horarios | campos del perfil: nombre, dirección, teléfono, web, horarios |
+| Tu perfil actual (administra / verificado / acceso) | decide el modo: auditar, optimizar o crear desde cero |
+| Rubro principal y secundarios | categorías (lo que más mueve el posicionamiento) |
+| Atendés en el local o a domicilio + zona | dirección visible o **área de servicio** con dirección oculta |
+| Qué ofrecen, atributos, preguntas, novedades | servicios/productos, atributos, preguntas frecuentes, publicaciones |
+| Descripción en sus palabras | descripción de 500-750 caracteres |
+| Fotos | logo, portada, fachada, interior, productos, equipo |
+| Reseñas | respuestas a redactar y cartel QR de reseñas |
+
+Los datos del perfil son los que el cliente confirmó en la plantilla: Google penaliza la información
+que no coincide con la realidad, y marcar un atributo que el cliente no marcó es inventar.
+
+## Reglas que no se negocian
+
+- El perfil es siempre del dueño: se crea o gestiona con **su cuenta de Google** (Gian
+  puede ser agregado como Administrador, nunca propietario principal). Nunca crear un
+  perfil con la cuenta de Gian ni reclamar un negocio que no es del cliente.
+- Nombre = nombre real del comercio. Sin ciudad, rubro ni frases ("Pizzería Roma" y no
+  "Pizzería Roma - Mejor pizza de Godoy Cruz"). Google suspende por esto.
+- Nada de reseñas falsas, compradas, de familiares ni redactadas con IA "como si fueran
+  clientes". Las respuestas a reseñas y los textos del perfil sí se pueden redactar con IA,
+  firmados por el negocio.
+- Solo marcar atributos que sean ciertos hoy (accesibilidad, medios de pago, delivery...).
+- El pin del mapa tiene que estar en la puerta del local. Negocios sin local a la calle
+  (servicios a domicilio) van con **área de servicio** y dirección oculta.
+
+## Rúbrica: qué es un perfil "completo" (100 puntos)
+
+Está implementada en `auditoria_gbp.py` (abajo). Resumen:
+
+| Bloque | Pts | Qué se mira |
+|---|---|---|
+| Base | 28 | Verificado (5), nombre limpio (3), categoría principal específica (5), 2-5 secundarias (3, máx. 9), dirección/área (4), teléfono (2), web o página de links (3), horarios de todos los días (3) |
+| Descripción | 8 | 500-750 caracteres, concreta: qué ofrece, para quién, zona, diferencial. Sin links, precios ni promos |
+| Fotos | 20 | Logo cuadrado ≥250 px (3), portada 16:9 ≥1080x608 (3), ≥3 exterior (3), ≥5 interior (3), ≥8 productos/trabajos (4), equipo (2), ≥20 total (1), 2-4 nuevas por mes (1) |
+| Contenido | 14 | ≥8 servicios/productos o menú completo con precio (8), ≥4 atributos (3), horarios especiales de feriados (3) |
+| Reseñas | 14 | ≥10 reseñas (4), promedio ≥4,3 (2), ≥80 % respondidas en <48 h (5), ≥3 en los últimos 90 días (3) |
+| Actividad | 12 | Publicación en los últimos 30 días (5), 5-10 preguntas frecuentes cargadas por el dueño (4), enlaces de acción: menú, pedidos, reservas, turnos (3) |
+| Contacto | 4 | Redes vinculadas (2), mensajes o WhatsApp activo solo si responden en el día (2) |
+
+Niveles: ≥85 Completo · 65-84 Bueno con mejoras · 40-64 Incompleto · <40 Básico o abandonado.
+Los tres factores que más mueven el posicionamiento: **categoría principal, reseñas
+(cantidad, frecuencia y respuestas) y actividad reciente** (fotos y publicaciones). Google
+además genera resúmenes con IA a partir de reseñas, publicaciones y productos: un perfil
+flaco produce un resumen flaco.
+
+## Perfil modelo (referencia para comparar)
+
+Bar Central (demo): categoría principal "Cafetería"; secundarias "Pastelería", "Bar de
+desayunos", "Café"; descripción de ~650 caracteres; logo + portada + 25 fotos (4 fachada,
+6 interior, 12 productos, 3 equipo); menú completo cargado con precios y link a
+`.../cliente-demo/carta/`; sitio web `.../cliente-demo/web/`; atributos: wifi, pet
+friendly, acceso sin escaleras, pago con tarjeta y QR, para llevar; horarios + feriados;
+8 preguntas frecuentes; 1 publicación semanal; todas las reseñas respondidas con nombre.
+
+## Modo 1: auditar y optimizar
+
+1. **Relevar**. Pedirle a Gian el link de Maps del local y, si ya lo tiene, acceso de
+   Administrador o capturas del panel (business.google.com). Lo público se ve en Maps
+   (abrir con el navegador integrado si WebFetch no lo renderiza): nombre, categoría,
+   dirección, horarios, fotos, reseñas y respuestas, publicaciones, preguntas, web, menú.
+   Lo interno (verificación, atributos completos, mensajes, estadísticas) solo desde el panel.
+2. **Cargar `<slug>/google/relevamiento.json`** con el esquema del docstring y correr
+   `python3 _tools/auditoria_gbp.py <slug>/google/relevamiento.json <slug>/google/auditoria.md`.
+3. **Armar el kit de carga** en `<slug>/google/kit.md` con todo lo que falte, listo para
+   copiar y pegar: descripción (500-750), lista de categorías sugeridas, servicios o
+   productos con precio y descripción corta, atributos a marcar, 8-10 preguntas frecuentes
+   con respuesta, respuestas a las reseñas sin responder (personalizadas, con nombre del
+   cliente, cortas, sin plantilla repetida; en las negativas: agradecer, no discutir,
+   invitar a resolverlo por WhatsApp), 4 publicaciones para el primer mes (150-300
+   caracteres + foto sugerida) y lista de fotos que hay que sacar (con indicaciones).
+4. **Cargar** con el dueño (presencial o por videollamada, desde su cuenta) o, si Gian es
+   Administrador, cargarlo él. Priorizar por el orden del informe.
+5. **Cerrar** con el cartel QR de reseñas (skill `cartel-qr`, `--tipo google` con el link
+   de reseñas del perfil) y una rutina de mantenimiento para el dueño: 1 publicación por
+   semana, 2-4 fotos por mes, responder reseñas en 48 h. Todo queda archivado en
+   `<slug>/google/` del repo `Giannsalva/GS-Servicios-Digitales`.
+
+## Modo 2: crear desde cero
+
+1. Confirmar que **no existe ya un perfil** del local (buscar el nombre y la dirección en
+   Maps; si aparece sin reclamar, se reclama en lugar de crear uno nuevo: duplicados = suspensión).
+2. Relevar todo lo de la rúbrica de una vez (checklist para Gian): nombre exacto, categoría,
+   dirección con pin, teléfono, horarios y feriados, descripción, fotos (mínimo logo, portada,
+   3 fachada, 5 interior, 8 productos), servicios o menú con precios, atributos, redes, web
+   o página de links, WhatsApp.
+3. Crear en business.google.com con la cuenta del dueño → agregar a Gian como Administrador.
+4. **Verificación**: lo habitual hoy es por video (un solo clip continuo: cartel exterior con
+   la calle, interior, y una acción de gestión como abrir la caja o mostrar herramientas);
+   demora 1 a 3 días hábiles. Tarjeta postal, teléfono o mail solo si Google los ofrece.
+   Mientras no está verificado, no aparece: preparar el kit de carga en paralelo.
+5. Cargar todo con el kit, en este orden: datos base → categorías → descripción → fotos →
+   servicios/menú → atributos → preguntas frecuentes → primera publicación → enlaces y redes.
+6. Correr la auditoría sobre lo cargado (objetivo ≥85), entregar el link del perfil, el link
+   de reseñas, el cartel QR y la rutina de mantenimiento.
+
+## Ubicaciones de la ayuda oficial
+
+- Panel: https://business.google.com
+- Lineamientos de nombre y categorías: https://support.google.com/business/answer/3038177
+- Verificación: https://support.google.com/business/answer/7107242
+
+## `_tools/auditoria_gbp.py`
+
+```python
+#!/usr/bin/env python3
+"""
+Auditoría de un Perfil de Empresa en Google (Google Maps). Recibe lo relevado en un JSON
+y devuelve puntaje, faltantes ordenados por impacto y el informe en Markdown.
+
+Uso:
+  python3 auditoria_gbp.py relevamiento.json [informe.md]
+
+relevamiento.json (todo opcional; lo que no se releva cuenta como faltante):
+{
+  "nombre": "Bar Central", "rubro": "Cafetería",
+  "verificado": true,
+  "nombre_limpio": true,              # sin keywords, ciudad ni slogans agregados
+  "categoria_principal": "Cafetería",
+  "categorias_secundarias": ["Pastelería", "Bar de desayunos"],
+  "direccion_ok": true,               # o "area_servicio": true para negocios sin local
+  "telefono": true, "web": true,
+  "horarios": true, "horarios_especiales": true,
+  "descripcion_chars": 620,
+  "logo": true, "portada": true,
+  "fotos_exterior": 3, "fotos_interior": 6, "fotos_productos": 12, "fotos_equipo": 0,
+  "fotos_total": 24, "fotos_ultimo_mes": 2,
+  "servicios_o_productos": 14,        # ítems cargados en Servicios / Productos / Menú
+  "atributos": 6,
+  "resenas_total": 48, "resenas_promedio": 4.6, "resenas_respondidas_pct": 40,
+  "resenas_ultimos_90d": 5,
+  "publicaciones_ultimos_30d": 0,
+  "preguntas_respondidas": 2,
+  "enlaces_accion": ["reservas"],     # reservas, pedidos, menu, citas, whatsapp
+  "redes": ["instagram"],
+  "mensajes_activados": false
+}
+"""
+import json
+import sys
+from pathlib import Path
+
+
+def evaluar(d):
+    g = d.get
+    checks = []
+
+    def c(bloque, nombre, puntos, ok, accion, parcial=None):
+        checks.append({"bloque": bloque, "nombre": nombre, "max": puntos,
+                       "obt": puntos if ok else (parcial or 0), "accion": accion})
+
+    # Base (28)
+    c("Base", "Perfil verificado", 5, g("verificado"), "Verificar el perfil (video es lo habitual: cartel, interior y gestión en vivo).")
+    c("Base", "Nombre real, sin keywords", 3, g("nombre_limpio"), "Dejar solo el nombre del comercio: sin ciudad, rubro ni frases agregadas (Google puede suspender).")
+    c("Base", "Categoría principal correcta", 5, bool(g("categoria_principal")), "Elegir la categoría más específica que describa el negocio (es el factor que más pesa).")
+    sec = len(g("categorias_secundarias") or [])
+    c("Base", "Categorías secundarias (2 a 5)", 3, sec >= 2, "Agregar 2 a 5 categorías secundarias que también apliquen (máximo 9).", parcial=1 if sec == 1 else 0)
+    c("Base", "Dirección o área de servicio", 4, g("direccion_ok") or g("area_servicio"), "Cargar la dirección exacta con el pin bien ubicado, o el área de servicio si atiende a domicilio.")
+    c("Base", "Teléfono", 2, g("telefono"), "Cargar un teléfono que atienda (puede ser el celular con WhatsApp).")
+    c("Base", "Sitio web o página de links", 3, g("web"), "Cargar la mini web o la página de links como sitio web.")
+    c("Base", "Horarios completos", 3, g("horarios"), "Cargar horario de cada día, incluidos los días cerrado.")
+    # Descripción (8)
+    dc = g("descripcion_chars") or 0
+    c("Descripción", "Descripción de 500 a 750 caracteres", 8, dc >= 500, "Redactar descripción (máx. 750): qué ofrece, para quién, zona, qué lo diferencia. Sin links ni promos.", parcial=4 if 150 <= dc < 500 else 0)
+    # Fotos (20)
+    c("Fotos", "Logo", 3, g("logo"), "Subir logo cuadrado (mín. 250x250, legible chico).")
+    c("Fotos", "Foto de portada", 3, g("portada"), "Subir portada horizontal 16:9 (mín. 1080x608) que muestre el local o el producto estrella.")
+    ext, inte, prod = g("fotos_exterior") or 0, g("fotos_interior") or 0, g("fotos_productos") or 0
+    c("Fotos", "Exterior (mín. 3)", 3, ext >= 3, "Sacar 3 a 5 fotos de la fachada de día, con el cartel visible, desde la vereda.", parcial=1 if ext else 0)
+    c("Fotos", "Interior (mín. 5)", 3, inte >= 5, "Sacar 5 fotos del interior con luz natural, ordenado y con gente si se puede.", parcial=1 if inte else 0)
+    c("Fotos", "Productos / servicios (mín. 8)", 4, prod >= 8, "Subir 8 o más fotos de productos, platos o trabajos realizados.", parcial=2 if prod >= 3 else 0)
+    c("Fotos", "Equipo", 2, (g("fotos_equipo") or 0) >= 1, "Subir 1 o 2 fotos del equipo atendiendo (genera confianza).")
+    c("Fotos", "Total 20 o más", 1, (g("fotos_total") or 0) >= 20, "Llegar a 20-30 fotos en total.")
+    c("Fotos", "Fotos nuevas en el último mes", 1, (g("fotos_ultimo_mes") or 0) >= 2, "Rutina: 2 a 4 fotos nuevas por mes.")
+    # Contenido (14)
+    sp = g("servicios_o_productos") or 0
+    c("Contenido", "Servicios / productos / menú cargados", 8, sp >= 8, "Cargar cada servicio o producto con nombre, precio y descripción corta (o el menú completo).", parcial=4 if sp >= 3 else 0)
+    c("Contenido", "Atributos", 3, (g("atributos") or 0) >= 4, "Marcar atributos reales: accesibilidad, medios de pago, wifi, pet friendly, delivery, etc.", parcial=1 if g("atributos") else 0)
+    c("Contenido", "Horarios especiales (feriados)", 3, g("horarios_especiales"), "Cargar feriados y vacaciones (evita el cartel 'puede estar cerrado').")
+    # Reseñas (14)
+    rt, rp = g("resenas_total") or 0, g("resenas_promedio") or 0
+    c("Reseñas", "10 o más reseñas", 4, rt >= 10, "Pedir reseñas con el cartel QR a los clientes que se van contentos.", parcial=2 if rt >= 3 else 0)
+    c("Reseñas", "Promedio 4,3 o más", 2, rp >= 4.3, "Atender lo que se repite en las reseñas malas; el promedio sube con volumen nuevo.")
+    c("Reseñas", "80 % o más respondidas", 5, (g("resenas_respondidas_pct") or 0) >= 80, "Responder todas las reseñas (buenas y malas), en menos de 48 h, con nombre y sin plantillas idénticas.", parcial=2 if (g("resenas_respondidas_pct") or 0) >= 40 else 0)
+    c("Reseñas", "Reseñas recientes (últimos 90 días)", 3, (g("resenas_ultimos_90d") or 0) >= 3, "Sostener 1 o más reseñas nuevas por semana.", parcial=1 if g("resenas_ultimos_90d") else 0)
+    # Actividad (12)
+    c("Actividad", "Publicación en los últimos 30 días", 5, (g("publicaciones_ultimos_30d") or 0) >= 1, "Publicar novedades, ofertas o eventos cada 1 o 2 semanas (150-300 caracteres, con foto).")
+    c("Actividad", "Preguntas y respuestas cargadas", 4, (g("preguntas_respondidas") or 0) >= 5, "Cargar 5 a 10 preguntas frecuentes con su respuesta desde la cuenta del dueño.", parcial=2 if g("preguntas_respondidas") else 0)
+    c("Actividad", "Enlaces de acción (reservas, pedidos, menú, citas)", 3, len(g("enlaces_accion") or []) >= 1, "Agregar los enlaces de acción que apliquen: menú, pedidos, reservas o turnos (puede ser WhatsApp).")
+    # Contacto (4)
+    c("Contacto", "Redes sociales vinculadas", 2, len(g("redes") or []) >= 1, "Vincular Instagram, Facebook, TikTok o YouTube desde el perfil.")
+    c("Contacto", "Mensajes / WhatsApp activo", 2, g("mensajes_activados"), "Activar mensajes o vincular WhatsApp (solo si van a responder en el día).")
+
+    total = sum(x["obt"] for x in checks)
+    maximo = sum(x["max"] for x in checks)
+    return checks, total, maximo
+
+
+def nivel(p):
+    if p >= 85: return "Completo"
+    if p >= 65: return "Bueno, con mejoras"
+    if p >= 40: return "Incompleto"
+    return "Básico o abandonado"
+
+
+def informe(d, checks, total, maximo):
+    faltan = sorted([x for x in checks if x["obt"] < x["max"]], key=lambda x: -(x["max"] - x["obt"]))
+    bloques = {}
+    for x in checks:
+        b = bloques.setdefault(x["bloque"], [0, 0])
+        b[0] += x["obt"]; b[1] += x["max"]
+    out = [f"# Auditoría del perfil de Google: {d.get('nombre', '')}", "",
+           f"**Puntaje: {total}/{maximo} · {nivel(total)}**", "", "| Bloque | Puntos |", "|---|---|"]
+    out += [f"| {k} | {v[0]}/{v[1]} |" for k, v in bloques.items()]
+    out += ["", "## Qué ajustar, por impacto", ""]
+    out += [f"{i}. **{x['nombre']}** (+{x['max'] - x['obt']}): {x['accion']}" for i, x in enumerate(faltan, 1)]
+    out += ["", "## Lo que ya está bien", ""]
+    out += [f"- {x['nombre']}" for x in checks if x["obt"] == x["max"]]
+    return "\n".join(out) + "\n"
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        sys.exit("Uso: auditoria_gbp.py relevamiento.json [informe.md]")
+    d = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+    checks, total, maximo = evaluar(d)
+    md = informe(d, checks, total, maximo)
+    out = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("auditoria.md")
+    out.write_text(md, encoding="utf-8")
+    print(f"{total}/{maximo} · {nivel(total)} → {out}")
+```

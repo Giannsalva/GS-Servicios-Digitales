@@ -10,15 +10,20 @@ Estructura por cliente:
 
 ```
 <slug>/
-  index.html      página de links publicada
-  config.json     datos para regenerar la página
-  carta/          menú o catálogo digital (config.json + index.html)
-  web/            mini web de presentación (config.json + fotos/ + index.html)
-  turnos/         reservas online (config.json + index.html; backend en _tools/turnos/)
-  google/         relevamiento y kit del perfil de Google Maps
-  alta.md         hoja de alta del cliente (copiar de _plantillas/)
-  carteles/       PDF (imprimir) y PNG (WhatsApp) de cada cartel QR
+  index.html          página de links publicada
+  config.json         datos para regenerar la página
+  carta/              menú o catálogo digital (config.json + index.html)
+  web/                mini web de presentación (config.json + fotos/ + index.html)
+  turnos/             reservas online (config.json + index.html; backend en _tools/turnos/)
+  google/             relevamiento y kit del perfil de Google Maps
+  alta-<servicio>.md  plantilla completada por el cliente (alta-qr-links, alta-menu-digital,
+                      alta-catalogo, alta-mini-web, alta-perfil-google, alta-turnos)
+  carteles/           PDF (imprimir) y PNG (WhatsApp) de cada cartel QR
 ```
+
+Cada servicio arranca por su alta: se le manda al cliente la plantilla de `_plantillas/docx/`,
+se transcribe lo que devuelve en `<slug>/alta-<servicio>.md` y la skill trabaja desde ahí.
+Ver `_plantillas/alta-cliente.md` (índice y método) y `_skills/README.md`.
 
 Herramientas en `_tools/`:
 
@@ -29,4 +34,5 @@ python3 _tools/pagina_web.py <slug>/web/config.json <slug>/web/index.html
 python3 _tools/pagina_turnos.py <slug>/turnos/config.json <slug>/turnos/index.html   # backend: _tools/turnos/README.md
 python3 _tools/auditoria_gbp.py <slug>/google/relevamiento.json <slug>/google/auditoria.md
 python3 _tools/cartel_qr.py --nombre "Nombre" --tipo links --url "https://giannsalva.github.io/GS-Servicios-Digitales/<slug>/" --out <slug>/carteles/cartel-links-<slug>.pdf
+python3 _tools/plantillas_docx.py                                                   # regenera _plantillas/docx/*.docx desde los .md
 ```

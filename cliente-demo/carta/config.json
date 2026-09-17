@@ -4,34 +4,131 @@
   "detalle": "Precios en pesos",
   "accent": "#C8552B",
   "moneda": "$",
-  "whatsapp": "5492610000000",
+  "whatsapp": "5491137845392",
   "mensaje": "Hola! Quiero hacer un pedido",
   "categorias": [
-    {"nombre": "Cafetería", "items": [
-      {"nombre": "Espresso", "desc": "Blend de la casa, tostado en Mendoza", "precio": 2800},
-      {"nombre": "Cortado", "precio": 3100},
-      {"nombre": "Flat white", "desc": "Doble espresso con leche texturizada", "precio": 3900, "tags": ["Favorito"]},
-      {"nombre": "Latte de avena", "precio": 4300, "tags": ["Vegano"]},
-      {"nombre": "Cold brew", "desc": "12 horas de extracción en frío", "precio": 4500, "tags": ["Nuevo"]}
-    ]},
-    {"nombre": "Pastelería", "items": [
-      {"nombre": "Medialunas", "desc": "De manteca, x3", "precio": 3600},
-      {"nombre": "Budín de limón y amapola", "precio": 3200},
-      {"nombre": "Cookie de chocolate", "precio": 2900},
-      {"nombre": "Carrot cake", "desc": "Con frosting de queso crema", "precio": 4800, "tags": ["Favorito"]},
-      {"nombre": "Brownie sin TACC", "precio": 4200, "tags": ["Sin TACC"]}
-    ]},
-    {"nombre": "Salado", "items": [
-      {"nombre": "Tostado de jamón y queso", "desc": "Pan de campo", "precio": 5900},
-      {"nombre": "Tostón de palta", "desc": "Huevo poché, semillas y limón", "precio": 7200, "tags": ["Vegetariano"]},
-      {"nombre": "Sándwich de pollo", "desc": "Pollo grillado, rúcula y mayonesa de hierbas", "precio": 8400},
-      {"nombre": "Ensalada de la huerta", "precio": 7800, "tags": ["Vegano"]}
-    ]},
-    {"nombre": "Bebidas", "items": [
-      {"nombre": "Limonada con menta y jengibre", "precio": 3800},
-      {"nombre": "Jugo de naranja exprimido", "precio": 3500},
-      {"nombre": "Agua mineral", "desc": "500 ml", "precio": 1800},
-      {"nombre": "Cerveza artesanal", "desc": "Pinta, IPA o Golden", "precio": 4900}
-    ]}
+    {
+      "nombre": "Cafetería",
+      "items": [
+        {
+          "nombre": "Espresso",
+          "desc": "Blend de la casa, tostado en Mendoza",
+          "precio": 2800
+        },
+        {
+          "nombre": "Cortado",
+          "precio": 3100
+        },
+        {
+          "nombre": "Flat white",
+          "desc": "Doble espresso con leche texturizada",
+          "precio": 3900,
+          "tags": [
+            "Favorito"
+          ]
+        },
+        {
+          "nombre": "Latte de avena",
+          "precio": 4300,
+          "tags": [
+            "Vegano"
+          ]
+        },
+        {
+          "nombre": "Cold brew",
+          "desc": "12 horas de extracción en frío",
+          "precio": 4500,
+          "tags": [
+            "Nuevo"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "Pastelería",
+      "items": [
+        {
+          "nombre": "Medialunas",
+          "desc": "De manteca, x3",
+          "precio": 3600
+        },
+        {
+          "nombre": "Budín de limón y amapola",
+          "precio": 3200
+        },
+        {
+          "nombre": "Cookie de chocolate",
+          "precio": 2900
+        },
+        {
+          "nombre": "Carrot cake",
+          "desc": "Con frosting de queso crema",
+          "precio": 4800,
+          "tags": [
+            "Favorito"
+          ]
+        },
+        {
+          "nombre": "Brownie sin TACC",
+          "precio": 4200,
+          "tags": [
+            "Sin TACC"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "Salado",
+      "items": [
+        {
+          "nombre": "Tostado de jamón y queso",
+          "desc": "Pan de campo",
+          "precio": 5900
+        },
+        {
+          "nombre": "Tostón de palta",
+          "desc": "Huevo poché, semillas y limón",
+          "precio": 7200,
+          "tags": [
+            "Vegetariano"
+          ]
+        },
+        {
+          "nombre": "Sándwich de pollo",
+          "desc": "Pollo grillado, rúcula y mayonesa de hierbas",
+          "precio": 8400
+        },
+        {
+          "nombre": "Ensalada de la huerta",
+          "precio": 7800,
+          "tags": [
+            "Vegano"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "Bebidas",
+      "items": [
+        {
+          "nombre": "Limonada con menta y jengibre",
+          "precio": 3800
+        },
+        {
+          "nombre": "Jugo de naranja exprimido",
+          "precio": 3500
+        },
+        {
+          "nombre": "Agua mineral",
+          "desc": "500 ml",
+          "precio": 1800
+        },
+        {
+          "nombre": "Cerveza artesanal",
+          "desc": "Pinta, IPA o Golden",
+          "precio": 4900
+        }
+      ]
+    }
   ]
 }
