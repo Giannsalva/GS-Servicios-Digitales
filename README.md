@@ -1,7 +1,23 @@
 # links
 
-Páginas de links de comercios (una carpeta por cliente), servidas con GitHub Pages.
+Archivo de clientes del Kit QR. Una carpeta por comercio, servida con GitHub Pages.
 
-- `bar-central/` → https://giannsalva.github.io/links/bar-central/
+| Cliente | Página | Contenido |
+|---|---|---|
+| Bar Central | https://giannsalva.github.io/links/bar-central/ | `config.json`, `index.html`, `carteles/` |
 
-Cada carpeta contiene un `index.html` autocontenido generado con `pagina_links.py --standalone`.
+Estructura por cliente:
+
+```
+<slug>/
+  index.html      página de links publicada
+  config.json     datos para regenerar la página
+  carteles/       PDF (imprimir) y PNG (WhatsApp) de cada cartel QR
+```
+
+Herramientas en `_tools/`:
+
+```
+python3 _tools/pagina_links.py <slug>/config.json <slug>/index.html --standalone
+python3 _tools/cartel_qr.py --nombre "Nombre" --tipo links --url "https://giannsalva.github.io/links/<slug>/" --out <slug>/carteles/cartel-links-<slug>.pdf
+```

@@ -1,0 +1,15 @@
+{
+  "nombre": "Bar Central",
+  "tagline": "Café de especialidad y pastelería",
+  "detalle": "Lun a Sáb 8 a 20 hs · San Martín 1234, Godoy Cruz",
+  "accent": "#C8552B",
+  "links": [
+    {"tipo": "whatsapp", "label": "Pedinos por WhatsApp", "sub": "Respondemos al toque", "url": "https://wa.me/5492610000000?text=Hola%21%20Quiero%20hacer%20un%20pedido"},
+    {"tipo": "menu", "label": "Ver la carta", "sub": "Precios actualizados", "url": "https://example.com/carta"},
+    {"tipo": "instagram", "label": "Instagram", "sub": "@barcentral.mza", "url": "https://instagram.com/barcentral.mza"},
+    {"tipo": "google", "label": "Dejanos tu reseña en Google", "sub": "Nos ayuda muchísimo", "url": "https://maps.app.goo.gl/sRhe8EfDFZeuSLT16"},
+    {"tipo": "maps", "label": "Cómo llegar", "url": "https://maps.app.goo.gl/sRhe8EfDFZeuSLT16"},
+    {"tipo": "facebook", "label": "Facebook", "url": "https://facebook.com/barcentral"},
+    {"tipo": "web", "label": "Nuestra web", "url": "https://example.com"}
+  ]
+}
