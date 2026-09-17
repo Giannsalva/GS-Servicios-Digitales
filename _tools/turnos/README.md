@@ -19,7 +19,9 @@ agenda y Gmail para los mails. Costo: cero. Límite: ~100 mails por día por cue
    - Ejecutar como: **Yo**
    - Quién tiene acceso: **Cualquier usuario**
    → Implementar → copiar la **URL de la aplicación web** (termina en `/exec`).
-5. En la planilla, pestaña **Config**, ajustar: `email_dueno`, `whatsapp` (549...),
+5. En la planilla, pestaña **Config**, ajustar: `calendario` (`primary` = calendario principal de esa
+   cuenta; o el ID de otro calendario, que se ve en Configuración del calendario → "ID del calendario",
+   por ejemplo uno compartido con el equipo), `email_dueno`, `whatsapp` (549...),
    `direccion`, horarios (`horario_lun_vie`, `horario_sab`, `horario_dom`; se puede agregar
    una fila `horario_mar` etc. para un día puntual), `capacidad` (turnos simultáneos),
    `intervalo_min`, `anticipacion_min_horas`, `anticipacion_max_dias`, `hora_recordatorio`.
@@ -41,6 +43,20 @@ Versión: Nueva versión → Implementar**. La URL no cambia.
 4. Agregar el botón en la página de links: `{"tipo": "reservas", "label": "Reservas",
    "sub": "Guardá tu lugar", "url": ".../<slug>/turnos/"}` y regenerar con `--standalone`.
 
+## Adaptar al rubro
+
+Todo se configura en la planilla, sin tocar código:
+- **Gastronomía**: servicios = tipos de mesa o eventos, `capacidad` = cantidad de mesas de ese tipo,
+  duración 90-120 min, `intervalo_min` 30, campo extra "¿Cuántos son?".
+- **Peluquería / estética / barbería**: servicios = corte, color, barba... con su duración real,
+  `capacidad` = cantidad de sillas o profesionales, `intervalo_min` 15 o 30.
+- **Psicología / consultorio / nutrición**: un servicio "Consulta" de 50-60 min, `capacidad` 1,
+  `anticipacion_min_horas` 24, campo extra "Obra social" o "Motivo de consulta", sin WhatsApp de
+  confirmación si prefieren discreción (dejar `whatsapp` vacío en el config de la página).
+- **Taller / gomería / lavadero**: servicio por tipo de trabajo, campo extra "Patente" o "Modelo".
+- **Clases / gimnasio**: servicio = clase, `capacidad` = cupo, horarios fijos con `intervalo_min` = duración.
+- **Profesional que atiende algunos días**: filas `horario_lun`, `horario_mar`... en Config (pisan a `horario_lun_vie`).
+
 ## C. Probar
 
 1. Abrir `.../<slug>/turnos/`, reservar con un mail propio.
@@ -50,6 +66,17 @@ Versión: Nueva versión → Implementar**. La URL no cambia.
 4. El recordatorio sale a la `hora_recordatorio` del día anterior (disparador cada hora);
    la agenda del día llega a las 8. Para probar sin esperar: ejecutar `enviarRecordatorios`
    a mano con un turno cargado para mañana.
+
+## Cosas que ya nos pasaron
+
+- Probar el API con `curl` da una página de error de Google aunque la reserva **sí** se haya creado
+  (curl no sigue bien la redirección de Apps Script en POST). Probar siempre desde la página en el navegador.
+- Un teléfono con `+` adelante rompía la celda en Sheets (`#ERROR!`): ahora se guarda solo con dígitos y
+  la fila se escribe como texto.
+- La primera llamada del día al script demora 2-4 s (arranque en frío): la página muestra un esqueleto
+  de carga y precarga los días siguientes; no es un error.
+- Si "no aparece en el calendario": está en el calendario de la cuenta donde corre el script (la que
+  ejecutó `setup`). Revisar que el celular tenga esa cuenta activa, o poner otro ID en `calendario`.
 
 ## Qué le queda al dueño
 

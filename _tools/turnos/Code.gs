@@ -28,7 +28,7 @@ function setup() {
   }
   var cfg = sheet_(ss, "Config", ["clave", "valor"]);
   if (cfg.getLastRow() < 2) {
-    cfg.getRange(2, 1, 12, 2).setValues([
+    cfg.getRange(2, 1, 13, 2).setValues([
       ["negocio", NEGOCIO_DEFAULT],
       ["email_dueno", Session.getActiveUser().getEmail()],
       ["whatsapp", "5491137845392"],
@@ -38,6 +38,7 @@ function setup() {
       ["anticipacion_min_horas", 2],
       ["anticipacion_max_dias", 30],
       ["hora_recordatorio", 9],
+      ["calendario", "primary"],
       ["horario_lun_vie", "09:00-13:00, 16:00-20:00"],
       ["horario_sab", "09:00-14:00"],
       ["horario_dom", ""]
@@ -73,6 +74,12 @@ function sheet_(ss, name, headers) {
 }
 
 // ---------- acceso a datos ----------
+
+function cal_(cfg) {
+  var id = cfg && cfg.calendario && String(cfg.calendario).trim();
+  if (id && id !== "primary") { var c = CalendarApp.getCalendarById(id); if (c) return c; }
+  return CalendarApp.getDefaultCalendar();
+}
 
 function ss_() { return SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty("SHEET_ID")); }
 
@@ -147,6 +154,16 @@ function disponibilidad(fecha, servicioId) {
 
 // ---------- reserva ----------
 
+function validar_(p) {
+  var nombre = String(p.nombre || "").trim().replace(/\s+/g, " ");
+  if (!/^[A-Za-zÀ-ÿ'´.-]{2,}( [A-Za-zÀ-ÿ'´.-]{2,})+$/.test(nombre)) return "Ingresá nombre y apellido";
+  var tel = String(p.telefono || "").replace(/\D/g, "");
+  if (!/^\d{8,15}$/.test(tel)) return "Ingresá un celular válido (solo números, con código de área)";
+  if (!/^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$/.test(String(p.email || "").trim())) return "Ingresá un email válido";
+  p.nombre = nombre; p.telefono = tel; p.email = String(p.email).trim().toLowerCase();
+  return "";
+}
+
 function reservar(p) {
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
@@ -155,7 +172,7 @@ function reservar(p) {
     var cfg = config_();
     var srv = servicios_().filter(function (s) { return s.id === p.servicio; })[0];
     if (!srv) return { error: "Servicio inválido" };
-    if (!p.nombre || !p.telefono || !p.email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(p.email)) return { error: "Completá nombre, teléfono y un email válido" };
+    var v = validar_(p); if (v) return { error: v };
     if (!/^\d{4}-\d{2}-\d{2}$/.test(p.fecha) || !/^\d{2}:\d{2}$/.test(p.hora)) return { error: "Fecha u hora inválida" };
     var maxFecha = new Date(); maxFecha.setDate(maxFecha.getDate() + cfg.anticipacion_max_dias);
     if (new Date(p.fecha + "T12:00:00") > maxFecha) return { error: "Solo se puede reservar hasta " + cfg.anticipacion_max_dias + " días adelante" };
@@ -166,16 +183,18 @@ function reservar(p) {
     var token = Utilities.getUuid().replace(/-/g, "");
     var ini = new Date(p.fecha + "T" + p.hora + ":00" + offset_());
     var fin = new Date(ini.getTime() + srv.duracion * 60000);
-    var ev = CalendarApp.getDefaultCalendar().createEvent(srv.nombre + " · " + p.nombre, ini, fin, {
+    var ev = cal_(cfg).createEvent(srv.nombre + " · " + p.nombre, ini, fin, {
       description: "Turno " + id + "\nTel: " + p.telefono + "\nEmail: " + p.email + (p.notas ? "\nNotas: " + p.notas : ""),
       location: cfg.direccion || ""
     });
-    ss_().getSheetByName("Turnos").appendRow([id, new Date(), p.fecha, p.hora, srv.duracion, srv.nombre, p.nombre, p.telefono, p.email, p.notas || "", "confirmado", token, ev.getId(), ""]);
+    var sh = ss_().getSheetByName("Turnos");
+    var fila = [id, new Date(), p.fecha, p.hora, srv.duracion, srv.nombre, p.nombre, p.telefono, p.email, p.notas || "", "confirmado", token, ev.getId(), ""];
+    var rng = sh.getRange(sh.getLastRow() + 1, 1, 1, fila.length);
+    rng.setNumberFormat("@"); rng.getCell(1, 2).setNumberFormat("yyyy-mm-dd hh:mm"); rng.setValues([fila]);
 
     var t = { id: id, token: token, fecha: p.fecha, hora: p.hora, dur: srv.duracion, servicio: srv.nombre, nombre: p.nombre, telefono: p.telefono, email: p.email, notas: p.notas || "" };
     mailConfirmacion_(cfg, t);
-    mailDueno_(cfg, "Nuevo turno: " + srv.nombre + " · " + fechaLarga_(p.fecha) + " " + p.hora,
-      p.nombre + " (" + p.telefono + ", " + p.email + ")" + (p.notas ? "\nNotas: " + p.notas : "") + "\n\nPlanilla: " + ss_().getUrl());
+    mailDuenoTurno_(cfg, "Nuevo turno", t, "Reservó desde la web. Ya está en tu calendario.");
     return { ok: true, id: id, fecha: p.fecha, hora: p.hora, servicio: srv.nombre };
   } finally {
     lock.releaseLock();
@@ -189,9 +208,9 @@ function cancelar(id, token) {
     if (rows[i][0] === id && rows[i][11] === token) {
       if (rows[i][10] === "cancelado") return { ok: true, ya: true };
       sh.getRange(i + 1, 11).setValue("cancelado");
-      try { var ev = CalendarApp.getDefaultCalendar().getEventById(rows[i][12]); if (ev) ev.deleteEvent(); } catch (e) {}
       var cfg = config_();
-      mailDueno_(cfg, "Turno cancelado: " + rows[i][5] + " · " + fechaLarga_(fmtFecha_(rows[i][2])) + " " + fmtHora_(rows[i][3]), rows[i][6] + " (" + rows[i][7] + ") canceló su turno.");
+      try { var ev = cal_(cfg).getEventById(rows[i][12]); if (ev) ev.deleteEvent(); } catch (e) {}
+      mailDuenoTurno_(cfg, "Turno cancelado", { id: id, fecha: fmtFecha_(rows[i][2]), hora: fmtHora_(rows[i][3]), dur: rows[i][4], servicio: rows[i][5], nombre: rows[i][6], telefono: rows[i][7], email: rows[i][8], notas: rows[i][9] }, "Canceló desde el link del mail. El horario quedó libre y el evento se borró del calendario.");
       return { ok: true };
     }
   }
@@ -223,6 +242,21 @@ function mailRecordatorio_(cfg, t) {
     "<p style='margin:20px 0 8px'><a href='" + wa + "' style='" + btn_("#25D366") + "'>Confirmar por WhatsApp</a></p>" +
     "<p style='color:#6B645D;font-size:13px'>Si no podés venir, <a href='" + cancel + "'>cancelá acá</a>. Gracias!</p>");
   GmailApp.sendEmail(t.email, "Recordatorio · " + cfg.negocio + " · mañana " + t.hora, textoPlano_(html), { htmlBody: html, name: cfg.negocio, replyTo: cfg.email_dueno });
+}
+
+function mailDuenoTurno_(cfg, titulo, t, nota) {
+  if (!cfg.email_dueno) return;
+  var wa = "https://wa.me/" + String(t.telefono).replace(/\D/g, "") + "?text=" + encodeURIComponent("Hola " + t.nombre.split(" ")[0] + "! Te escribo de " + cfg.negocio + " por tu reserva del " + fechaLarga_(t.fecha) + " a las " + t.hora + ".");
+  var html = plantilla_(cfg, titulo + ": " + t.servicio,
+    tarjeta_(cfg, t) +
+    "<div style='border:1px solid #E8E3DD;border-radius:14px;padding:14px 16px;background:#FFF'>" +
+    "<div><b>" + esc_(t.nombre) + "</b></div>" +
+    "<div style='margin-top:4px'>" + esc_(t.telefono) + " · " + esc_(t.email) + "</div>" +
+    (t.notas ? "<div style='margin-top:8px;color:#6B645D'>" + esc_(t.notas) + "</div>" : "") + "</div>" +
+    "<p style='color:#6B645D;font-size:13px;margin:14px 0 0'>" + esc_(nota) + "</p>" +
+    "<p style='margin:18px 0 0'><a href='" + wa + "' style='" + btn_("#25D366") + "'>Escribirle por WhatsApp</a> " +
+    "<a href='" + ss_().getUrl() + "' style='" + btn_("#6B645D") + "'>Ver planilla</a></p>");
+  GmailApp.sendEmail(cfg.email_dueno, "[Turnos] " + titulo + " · " + t.servicio + " · " + fechaLarga_(t.fecha) + " " + t.hora, textoPlano_(html), { htmlBody: html, name: cfg.negocio + " · Turnos" });
 }
 
 function mailDueno_(cfg, asunto, cuerpo) {

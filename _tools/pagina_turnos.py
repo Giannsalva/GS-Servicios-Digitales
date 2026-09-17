@@ -99,6 +99,11 @@ input, textarea {{ font: inherit; padding: 11px 12px; border: 1px solid var(--li
 .wa {{ display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 12px 18px; border-radius: 999px; background: #25D366; color: #fff; text-decoration: none; font-weight: 700; }}
 .demo {{ background: #FEF3C7; color: #78350F; border-radius: 10px; padding: 10px 12px; font-size: 13px; margin-bottom: 14px; }}
 .hidden {{ display: none; }}
+.slots .sk {{ height: 41px; border-radius: 12px; background: linear-gradient(90deg, var(--line), var(--card), var(--line)); background-size: 200% 100%; animation: sh 1.1s infinite; }}
+@keyframes sh {{ from {{ background-position: 200% 0; }} to {{ background-position: -200% 0; }} }}
+.days.busy button {{ pointer-events: none; }}
+label.bad input {{ border-color: #B42318; }}
+label small.e {{ color: #B42318; font-weight: 600; font-size: 12px; min-height: 0; }}
 footer {{ text-align: center; color: var(--muted); font-size: 12px; margin-top: 32px; }}
 </style></head><body><main>
 {volver}
@@ -111,10 +116,10 @@ footer {{ text-align: center; color: var(--muted); font-size: 12px; margin-top: 
 <section id="paso2" class="hidden"><h2>2 · ¿Qué día?</h2><div class="days" id="days"></div></section>
 <section id="paso3" class="hidden"><h2>3 · ¿A qué hora?</h2><div class="slots" id="slots"></div><div class="msg" id="slotmsg"></div></section>
 <section id="paso4" class="hidden"><h2>4 · Tus datos</h2>
-<form id="f">
-  <label>Nombre y apellido<input name="nombre" required autocomplete="name"></label>
-  <label>Teléfono<input name="telefono" type="tel" required autocomplete="tel" placeholder="261 555 1234"></label>
-  <label>Email<input name="email" type="email" required autocomplete="email"></label>
+<form id="f" novalidate>
+  <label>Nombre y apellido<input name="nombre" required autocomplete="name" placeholder="Ana Pérez"><small class="e"></small></label>
+  <label>Celular<input name="telefono" type="tel" required autocomplete="tel" inputmode="tel" placeholder="261 555 1234"><small class="e"></small></label>
+  <label>Email<input name="email" type="email" required autocomplete="email" inputmode="email" placeholder="ana@gmail.com"><small class="e"></small></label>
   {extra}
   {notas}
   <input class="hp" name="hp" tabindex="-1" autocomplete="off">
@@ -169,29 +174,43 @@ function dias() {{
 }}
 
 // paso 3
+let req = 0; const cache = {{}};
+function skeleton(c) {{ c.innerHTML = ""; for (let i = 0; i < 9; i++) {{ const d = document.createElement("div"); d.className = "sk"; c.appendChild(d); }} }}
+async function fetchSlots(fecha) {{
+  const k = st.srv.id + "|" + fecha;
+  if (cache[k]) return cache[k];
+  let lista;
+  if (DEMO) {{ await new Promise(r => setTimeout(r, 400)); lista = demoSlots(fecha); }}
+  else {{
+    const r = await fetch(CFG.api + "?action=disponibilidad&fecha=" + fecha + "&servicio=" + encodeURIComponent(st.srv.id));
+    const j = await r.json(); if (j.error) throw new Error(j.error); lista = j.slots || [];
+  }}
+  cache[k] = lista; return lista;
+}}
 async function slots() {{
+  const mine = ++req;
   $("#paso3").classList.remove("hidden"); $("#paso4").classList.add("hidden");
-  const c = $("#slots"); c.innerHTML = ""; $("#slotmsg").textContent = "Buscando horarios…";
+  const c = $("#slots"); skeleton(c); $("#slotmsg").textContent = "Buscando horarios…"; $("#days").classList.add("busy");
   let lista = [];
-  try {{
-    if (DEMO) lista = demoSlots();
-    else {{
-      const r = await fetch(CFG.api + "?action=disponibilidad&fecha=" + st.fecha + "&servicio=" + encodeURIComponent(st.srv.id));
-      const j = await r.json(); if (j.error) throw new Error(j.error); lista = j.slots || [];
-    }}
-  }} catch (e) {{ $("#slotmsg").textContent = "No pudimos cargar los horarios. Probá de nuevo."; return; }}
+  try {{ lista = await fetchSlots(st.fecha); }}
+  catch (e) {{ if (mine !== req) return; $("#days").classList.remove("busy"); c.innerHTML = ""; $("#slotmsg").textContent = "No pudimos cargar los horarios. Tocá el día de nuevo."; delete cache[st.srv.id + "|" + st.fecha]; return; }}
+  if (mine !== req) return;
+  $("#days").classList.remove("busy"); c.innerHTML = "";
   $("#slotmsg").textContent = lista.length ? "" : "No quedan horarios ese día. Probá con otro.";
   lista.forEach(h => {{
     const b = document.createElement("button"); b.type = "button"; b.textContent = h;
     b.onclick = () => {{ st.hora = h; [...c.children].forEach(x => x.classList.remove("sel")); b.classList.add("sel"); $("#paso4").classList.remove("hidden"); $("#paso4").scrollIntoView({{ behavior: "smooth", block: "start" }}); }};
     c.appendChild(b);
   }});
+  // precarga los 2 días siguientes disponibles para que el cambio de día sea instantáneo
+  const hoy = new Date(st.fecha + "T12:00:00"); let n = 0;
+  for (let i = 1; i <= 7 && n < 2; i++) {{ const d = new Date(hoy); d.setDate(hoy.getDate() + i); if (rangos(d).length) {{ n++; fetchSlots(ymd(d)).catch(() => {{}}); }} }}
 }}
-function demoSlots() {{
-  const d = new Date(st.fecha + "T12:00:00"); const out = [];
+function demoSlots(fecha) {{
+  const d = new Date(fecha + "T12:00:00"); const out = [];
   const ahora = new Date(); const minIni = ahora.getTime() + 2*3600000;
   rangos(d).forEach(([a,b]) => {{ for (let t = a; t + st.srv.duracion <= b; t += CFG.intervalo) {{
-    const ini = new Date(st.fecha + "T" + hh(t) + ":00");
+    const ini = new Date(fecha + "T" + hh(t) + ":00");
     if (ini.getTime() < minIni) continue;
     if ((t/CFG.intervalo + d.getDate()) % 4 === 1) continue; // simula ocupados
     out.push(hh(t));
@@ -200,9 +219,31 @@ function demoSlots() {{
 }}
 
 // paso 4
+const RE = {{
+  nombre: /^[A-Za-zÀ-ÿ'´.-]{{2,}}( [A-Za-zÀ-ÿ'´.-]{{2,}})+$/,
+  telefono: /^\+?\d{{8,15}}$/,
+  email: /^[^@\s]+@[^@\s]+\.[a-zA-Z]{{2,}}$/
+}};
+const MSG = {{ nombre: "Escribí tu nombre y apellido", telefono: "Celular con código de área, solo números (ej. 261 555 1234)", email: "Revisá el email (ej. ana@gmail.com)" }};
+function validar(form, p) {{
+  let ok = true, first = null;
+  form.querySelectorAll("label").forEach(l => l.classList.remove("bad"));
+  form.querySelectorAll("small.e").forEach(e => e.textContent = "");
+  form.querySelectorAll("input[required]").forEach(inp => {{
+    const name = inp.name, val = (p[name] || "").trim().replace(/\s+/g, " ");
+    const test = name === "telefono" ? val.replace(/[^\d+]/g, "") : val;
+    let err = "";
+    if (!val) err = "Completá este dato";
+    else if (RE[name] && !RE[name].test(test)) err = MSG[name];
+    if (err) {{ ok = false; const l = inp.closest("label"); l.classList.add("bad"); const e = l.querySelector("small.e"); if (e) e.textContent = err; first = first || inp; }}
+  }});
+  if (!ok) {{ first.focus(); first.scrollIntoView({{ behavior: "smooth", block: "center" }}); }}
+  return ok;
+}}
 $("#f").onsubmit = async ev => {{
   ev.preventDefault(); $("#err").textContent = "";
   const fd = new FormData(ev.target); const p = Object.fromEntries(fd.entries());
+  if (!validar(ev.target, p)) return;
   const extras = Object.keys(p).filter(k => !["nombre","telefono","email","notas","hp"].includes(k)).map(k => k + ": " + p[k]).filter(x => !x.endsWith(": "));
   const body = {{ servicio: st.srv.id, fecha: st.fecha, hora: st.hora, nombre: p.nombre.trim(), telefono: p.telefono.trim(), email: p.email.trim(), notas: [p.notas||"", ...extras].filter(Boolean).join(" · "), hp: p.hp }};
   $("#btn").disabled = true; $("#btn").textContent = "Reservando…";
