@@ -44,8 +44,8 @@
   "whatsapp": "5491137845392",
   "mensaje": "Hola! Quiero hacer una consulta",
   "telefono": "+54 11 3784-5392",
-  "instagram": "https://instagram.com/barcentral.mza",
-  "facebook": "https://facebook.com/barcentral",
+  "instagram": "https://instagram.com/giannsalva",
+  "facebook": "https://www.facebook.com/search/top?q=Gianluca%20Salvatori",
   "botones": [
     {
       "label": "Ver la carta",
@@ -102,5 +102,6 @@
         }
       ]
     }
-  ]
+  ],
+  "cta_whatsapp": false
 }

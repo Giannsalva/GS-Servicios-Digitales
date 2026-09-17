@@ -41,6 +41,7 @@ config.json:
   "instagram": "https://instagram.com/barcentral.mza",
   "facebook": "https://facebook.com/barcentral",
   "email": "hola@barcentral.com",
+  "cta_whatsapp": false,        # opcional: saca el boton "Escribinos" del hero (el WhatsApp sigue en Contacto)
   "botones": [
     {"label": "Ver la carta", "url": "https://.../carta/"},
     {"label": "Reservar mesa", "url": "https://wa.me/549..."}
@@ -99,10 +100,11 @@ def render(cfg, base=Path(".")):
     hero_style = f' style="background-image:url({portada})"' if portada else ""
     brand = f'<img class="logo" src="{logo}" alt="">' if logo else f'<div class="logo mono">{e(cfg["nombre"][:1].upper())}</div>'
     hero_btns = ""
-    if wa_url:
-        hero_btns += f'<a class="btn primary" href="{wa_url}" target="_blank" rel="noopener">{svg("wa")}Escribinos</a>'
+    if wa_url and cfg.get("cta_whatsapp", True):
+        hero_btns += f'<a class="btn wa" href="{wa_url}" target="_blank" rel="noopener">{svg("wa")}Escribinos</a>'
     for b in cfg.get("botones", []):
-        hero_btns += f'<a class="btn" href="{e(b["url"])}" target="_blank" rel="noopener">{e(b["label"])}</a>'
+        clase = "btn primary" if not hero_btns else "btn"
+        hero_btns += f'<a class="{clase}" href="{e(b["url"])}" target="_blank" rel="noopener">{e(b["label"])}</a>'
 
     about = ""
     if cfg.get("descripcion"):
@@ -188,7 +190,8 @@ body {{ margin: 0; background: var(--bg); color: var(--ink); font-family: Manrop
 .frase {{ margin: 14px 0 0; font-size: 18px; max-width: 34ch; text-wrap: balance; }}
 .btns {{ display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }}
 .btn {{ display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 15px; background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.4); backdrop-filter: blur(4px); }}
-.btn.primary {{ background: #25D366; border-color: #25D366; }}
+.btn.wa {{ background: #25D366; border-color: #25D366; }}
+.btn.primary {{ background: var(--accent); border-color: var(--accent); }}
 .btn svg {{ width: 18px; height: 18px; fill: currentColor; }}
 main {{ max-width: 640px; margin: 0 auto; padding: 8px 16px 48px; }}
 section {{ margin-top: 36px; }}
