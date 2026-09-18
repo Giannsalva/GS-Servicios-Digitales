@@ -77,7 +77,7 @@ el título, el texto de entrada y qué botones lleva. Nunca escribir ese HTML su
 `mailConfirmacion_`, `mailRecordatorio_` o `mailDuenoTurno_`: apenas se toca uno queda distinto de los
 otros. Al cambiar el diseño se cambia la plantilla, una sola vez, y los tres se mueven juntos.
 
-**Si dos mails se ven distintos, primero sospechar del despliegue, no del código.** Los disparadores
+**Si dos mails se ven distintos, primero la fecha de cada uno, después el despliegue, y recién al final el código.** Los disparadores
 (`enviarRecordatorios`, `agendaDelDia`) corren siempre el código **guardado**, mientras que la página
 llama a la **implementación** publicada en la URL `/exec` que tiene el `config.json`. Si se publica una
 *Nueva implementación* en vez de una *Nueva versión* de la existente, la URL cambia, la página queda
@@ -98,6 +98,8 @@ y el botón queda gris ilegible. **No volver a usar `btn_()` para un botón visi
 - "Ver planilla" es un link chico de texto, no un botón.
 - Para probar el diseño sin re-desplegar: renderizar el HTML con `node` + Playwright, y mandarse el
   mismo HTML por Gmail a la cuenta de Gian para verlo en el celular.
+- Los POST de prueba no se hacen con `curl`: Apps Script redirige y `curl -L` termina en una página de Drive
+  ("No se pudo abrir el archivo") que no dice nada. Probar desde la página real, en el navegador.
 
 ## Flujo por cliente
 
@@ -128,8 +130,12 @@ y el botón queda gris ilegible. **No volver a usar `btn_()` para un botón visi
   partido en dos códigos (confirmación vieja, recordatorio nuevo). Si ya pasó: publicar nueva versión sobre la
   implementación que usa el `config.json`, o actualizar el `api_url` y regenerar la página.
 - Botones de mail grises: es Gmail reescribiendo el fondo. Solución arriba; no es un problema del color elegido.
-- Mails con diseños distintos entre sí: casi siempre es el problema de implementación de arriba (pasó el 18/09/2026).
-  Comparar el `/exec` del `config.json` con el de la implementación activa antes de tocar una línea de código.
+- Mails con diseños distintos entre sí: antes de tocar código, mirar la **fecha** de los dos mails. Comparar uno
+  anterior al último cambio con uno posterior no prueba nada (pasó el 18/09/2026: la confirmación era de la tarde
+  anterior al arreglo). La prueba válida es reservar de nuevo y comparar mails del mismo despliegue.
+- `ScriptApp.getService().getUrl()` dentro de un disparador devuelve la URL de la implementación más nueva, que no
+  siempre es la que usa la página: el link de cancelar de un recordatorio puede apuntar a otro `/exec` que el del
+  `config.json` sin que nada esté roto. No es prueba de despliegue viejo, pero sí conviene que coincidan.
 - Primera llamada del día tarda 2-4 s (arranque en frío): la página muestra esqueleto y precarga los días siguientes.
 - "No lo veo en el calendario": está en la cuenta que ejecutó `setup()`; revisar qué cuenta tiene el celular.
 - Límite de ~100 mails/día por cuenta Gmail común: sobra para un local; avisar si el volumen es mayor.
