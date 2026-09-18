@@ -71,6 +71,23 @@ En una sesión nueva, traer el código con `curl -sL https://raw.githubuserconte
 | Recordatorio | al cliente | el día anterior, a la hora que pidió el dueño |
 | Aviso de turno | al dueño | por cada turno nuevo o cancelado, con los datos y "Escribirle por WhatsApp" |
 
+**Los tres mails son el mismo mail.** Salen de `plantilla_(cfg, titulo, cuerpo)` (encabezado, título
+y pie) + `tarjeta_(cfg, t)` (los datos del turno) + `boton_()`. Lo único que cambia entre uno y otro es
+el título, el texto de entrada y qué botones lleva. Nunca escribir ese HTML suelto dentro de
+`mailConfirmacion_`, `mailRecordatorio_` o `mailDuenoTurno_`: apenas se toca uno queda distinto de los
+otros. Al cambiar el diseño se cambia la plantilla, una sola vez, y los tres se mueven juntos.
+
+**Si dos mails se ven distintos, primero sospechar del despliegue, no del código.** Los disparadores
+(`enviarRecordatorios`, `agendaDelDia`) corren siempre el código **guardado**, mientras que la página
+llama a la **implementación** publicada en la URL `/exec` que tiene el `config.json`. Si se publica una
+*Nueva implementación* en vez de una *Nueva versión* de la existente, la URL cambia, la página queda
+pegada a la vieja y desde ese momento el recordatorio sale con el código nuevo y la confirmación con el
+viejo. Verificación de 10 segundos: el `api_url` del `config.json` tiene que ser exactamente el `/exec`
+de la implementación activa en *Implementar → Administrar implementaciones*.
+
+Antes de dar por cerrado cualquier cambio de mails: renderizar los tres con `node` + Playwright y
+**mirarlos uno al lado del otro**. Si no se ven como la misma familia, no está terminado.
+
 **Regla de oro del HTML de los mails:** los botones se arman con `boton_(url, texto, color)`, que
 devuelve una tabla con `bgcolor` y el texto en blanco forzado (`color:#ffffff !important` + `<span>`).
 Gmail —sobre todo en modo oscuro en el celular— reescribe los fondos de un `<a style="background:...">`
@@ -89,7 +106,9 @@ y el botón queda gris ilegible. **No volver a usar `btn_()` para un botón visi
 3. **Página**: copiar `cliente-demo/turnos/config.json` a `<slug>/turnos/config.json`, cargar `api_url`, `whatsapp` (vacío si el rubro prefiere discreción), `direccion`, `volver`, `horarios`, `intervalo_min`, `servicios`, `campos_extra` (`{"id","label","tipo","req"}`), `titulo`, `detalle`, `accent`. Generar: `python3 _tools/pagina_turnos.py <slug>/turnos/config.json <slug>/turnos/index.html`. Revisar con Playwright a 390 px.
 4. **Links + cartel**: agregar el botón Reservas (último) y regenerar la página de links (`--standalone`); cartel QR opcional con la skill `cartel-qr`.
 5. **Publicar**: flujo habitual (zip → `_upload.zip` → `device_bash` clona en `/tmp/gs` con el token que pega Gian → commit → push; `git remote set-url` sin token; copiar a la carpeta local; `: > _upload.zip`). Actualizar tabla del `README.md`.
-6. **Probar** desde el navegador (no con curl: la redirección de Apps Script engaña): reservar con un mail propio, verificar fila en Turnos, evento en el calendario, los tres mails (mirando uno en Gmail, no solo en Outlook), y cancelar por el link. Borrar las pruebas poniendo `estado = cancelado`.
+6. **Probar** desde el navegador (no con curl: la redirección de Apps Script engaña): reservar con un mail propio, verificar fila en Turnos, evento en el calendario y los tres mails: el de confirmación, el del dueño y el recordatorio
+   (forzar el recordatorio ejecutando `enviarRecordatorios` a mano con un turno de mañana, no esperar al día siguiente).
+   Mirar al menos uno en Gmail, no solo en Outlook, y comparar que los tres tengan el mismo diseño. Cancelar por el link. Borrar las pruebas poniendo `estado = cancelado`.
 7. **Entregar** al dueño: link de la página, link de la planilla, y la guía "Qué le queda al dueño" del README (bloquear días, cambiar horarios, cancelar). Si cambia servicios o intervalos, hay que regenerar la página.
 
 ## Adaptar al rubro (todo en la planilla, sin código)
@@ -104,8 +123,13 @@ y el botón queda gris ilegible. **No volver a usar `btn_()` para un botón visi
 
 ## Errores conocidos
 
-- Cambios en `Code.gs` requieren *Implementar → Administrar implementaciones → Nueva versión* (la URL no cambia).
+- Cambios en `Code.gs`: *Implementar → Administrar implementaciones → lápiz → Nueva versión*, que mantiene la URL.
+  **Nunca *Nueva implementación***: crea otra URL `/exec`, la página sigue apuntando a la vieja y el sistema queda
+  partido en dos códigos (confirmación vieja, recordatorio nuevo). Si ya pasó: publicar nueva versión sobre la
+  implementación que usa el `config.json`, o actualizar el `api_url` y regenerar la página.
 - Botones de mail grises: es Gmail reescribiendo el fondo. Solución arriba; no es un problema del color elegido.
+- Mails con diseños distintos entre sí: casi siempre es el problema de implementación de arriba (pasó el 18/09/2026).
+  Comparar el `/exec` del `config.json` con el de la implementación activa antes de tocar una línea de código.
 - Primera llamada del día tarda 2-4 s (arranque en frío): la página muestra esqueleto y precarga los días siguientes.
 - "No lo veo en el calendario": está en la cuenta que ejecutó `setup()`; revisar qué cuenta tiene el celular.
 - Límite de ~100 mails/día por cuenta Gmail común: sobra para un local; avisar si el volumen es mayor.
