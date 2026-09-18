@@ -25,6 +25,9 @@ Cada servicio arranca por su alta: se le manda al cliente la plantilla de `_plan
 se transcribe lo que devuelve en `<slug>/alta-<servicio>.md` y la skill trabaja desde ahí.
 Ver `_plantillas/alta-cliente.md` (índice y método) y `_skills/README.md`.
 
+Material de venta en `_ventas/`: la presentación (pptx y pdf), la tarjeta 90x55 mm y el mensaje
+de respuesta por WhatsApp. Los tres tienen que decir lo mismo; ver `_ventas/README.md`.
+
 Herramientas en `_tools/`:
 
 ```
@@ -35,4 +38,5 @@ python3 _tools/pagina_turnos.py <slug>/turnos/config.json <slug>/turnos/index.ht
 python3 _tools/auditoria_gbp.py <slug>/google/relevamiento.json <slug>/google/auditoria.md
 python3 _tools/cartel_qr.py --nombre "Nombre" --tipo links --url "https://giannsalva.github.io/GS-Servicios-Digitales/<slug>/" --out <slug>/carteles/cartel-links-<slug>.pdf
 python3 _tools/plantillas_docx.py                                                   # regenera _plantillas/docx/*.docx desde los .md
+python3 _tools/tarjeta.py _ventas/tarjeta/Gianluca_Salvatori_-_tarjeta.pdf          # regenera la tarjeta (PDF + PNG de cada cara)
 ```
